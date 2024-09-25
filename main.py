@@ -1,6 +1,7 @@
 import pygame
 import sys, math
 import numpy as np
+from pygame.examples.go_over_there import event
 
 pygame.init()
 
@@ -67,6 +68,10 @@ class Gui:
                                  )
             self.win = win
             self.grid_step = 15
+
+        def is_in_sight(self, pos):
+            return self.canvas_cords[0] <= pos[0] <= self.canvas_cords[2] and \
+                self.canvas_cords[1] <= pos[1] <= self.canvas_cords[2]
 
         def update_cord(self, dx, dy):
             self.user_cords[0] += dx
@@ -144,11 +149,7 @@ class Gui:
                     sys.exit()
                 case pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        if (
-                                self.canvas.canvas_cords[0] <= event.pos[0] <= self.canvas.canvas_cords[2]
-                        ) and (
-                                self.canvas.canvas_cords[1] <= event.pos[1] <= self.canvas.canvas_cords[2]
-                        ):
+                        if self.canvas.is_in_sight(event.pos):
                             self.canvas_capture = True
                             self.last_click_pos = event.pos
                 case pygame.MOUSEMOTION:
@@ -156,6 +157,7 @@ class Gui:
 
                     if self.canvas_capture:
                         self.canvas.update_cord(dx, dy)
+                        #self.last_click_pos = event.pos
                 case pygame.MOUSEBUTTONUP:
                     self.canvas_capture = False
                     self.last_click_pos = event.pos
