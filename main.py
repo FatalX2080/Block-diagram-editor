@@ -5,32 +5,58 @@ import numpy as np
 pygame.init()
 
 
-class BaseCanvasElement:
-    def __init__(self, x, y):
-        self.x = x
-        self.x = y
+class Blocks:
+    blocks = []
 
-
-class Blocks(BaseCanvasElement):
     def __init__(self, x, y, win, win_size, block_type):
         self.x = x
         self.y = y
+
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
+
+        self.size = (self.win_size[0] // 20, self.win_size[1] // 20)
+
+        Blocks.blocks.append(self)
         # 1 - start; 2 - funk; 3 - if; 4 - out_funk; 5 - linker; 6 - for; 7 - stdin
 
     def draw(self, k=1):
-        skale = (self.win_size[0] // 20 * k, self.win_size[1] // 20 * k)
+
         match self.block_type:
             case 1:
-                pygame.draw.rect(self.window, Gui.WHITE, (self.x, self.y, skale[0], skale[1]),
-                                 border_radius=2)
-                pygame.draw.rect(self.window, Gui.BLACK, (self.x, self.y, skale[0], skale[1]), 1,
-                                 border_radius=2)
+                pygame.draw.rect(
+                    self.window, Gui.WHITE, (self.x, self.y, self.size[0] / k, self.size[1] / k), 0, 10
+                )
+                pygame.draw.rect(
+                    self.window, Gui.BLACK, (self.x, self.y, self.size[0] / k, self.size[1] / k), 1, 10
+                )
+            case 2:
+                pygame.draw.rect(
+                    self.window, Gui.WHITE, (self.x, self.y, self.size[0] / k, self.size[1] / k)
+                )
+                pygame.draw.rect(
+                    self.window, Gui.BLACK, (self.x, self.y, self.size[0] / k, self.size[1] / k), 1
+                )
 
-    def update_cords(self):
-        pass
+    def update_cords(self, dx, dy):
+        self.x -= dx
+        self.y -= dy
+
+    def capture_check(self, x, y):
+        return self.x <= x <= (self.x + self.size[0]) and self.y <= y <= (self.y + self.size[1])
+
+    @staticmethod
+    def update_all_cords(dx, dy):
+        for block in Blocks.blocks:
+            block.update_cords(dx, dy)
+
+    @staticmethod
+    def block_capture(x, y):
+        for block in Blocks.blocks:
+            if block.capture_chack(x, y):
+                return block
+        return None
 
 
 class Gui:
@@ -67,6 +93,10 @@ class Gui:
                                  )
             self.win = win
             self.grid_step = 15
+
+        def capture_check(self, pos):
+            return self.canvas_cords[0] <= pos[0] <= self.canvas_cords[2] and \
+                self.canvas_cords[1] <= pos[1] <= self.canvas_cords[2]
 
         def update_cord(self, dx, dy):
             self.user_cords[0] += dx
@@ -144,11 +174,7 @@ class Gui:
                     sys.exit()
                 case pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        if (
-                                self.canvas.canvas_cords[0] <= event.pos[0] <= self.canvas.canvas_cords[2]
-                        ) and (
-                                self.canvas.canvas_cords[1] <= event.pos[1] <= self.canvas.canvas_cords[2]
-                        ):
+                        if self.canvas.capture_check(event.pos):
                             self.canvas_capture = True
                             self.last_click_pos = event.pos
                 case pygame.MOUSEMOTION:
@@ -156,6 +182,8 @@ class Gui:
 
                     if self.canvas_capture:
                         self.canvas.update_cord(dx, dy)
+                        Blocks.update_all_cords(dx, dy)
+                        self.last_click_pos = event.pos
                 case pygame.MOUSEBUTTONUP:
                     self.canvas_capture = False
                     self.last_click_pos = event.pos
