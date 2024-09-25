@@ -6,54 +6,64 @@ pygame.init()
 
 
 class Blocks:
-    blocks = []
+    added_blocks = set()
 
     def __init__(self, x, y, win, win_size, block_type):
-        self.x = x
-        self.y = y
-
+        # 1 - start; 2 - funk; 3 - if; 4 - out_funk; 5 - linker; 6 - for; 7 - stdin
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
 
-        self.size = (self.win_size[0] // 20, self.win_size[1] // 20)
+        self.skale = 1
+        self.x, self.y = x, y
+        self.size = (self.win_size[0] // 15, self.win_size[1] // 15)
+        self.cords = (0, 0, 0, 0)
+        self.set_cords()
 
-        Blocks.blocks.append(self)
-        # 1 - start; 2 - funk; 3 - if; 4 - out_funk; 5 - linker; 6 - for; 7 - stdin
+        Blocks.added_blocks.add(self)
 
-    def draw(self, k=1):
+    def draw(self):
 
         match self.block_type:
             case 1:
-                pygame.draw.rect(
-                    self.window, Gui.WHITE, (self.x, self.y, self.size[0] / k, self.size[1] / k), 0, 10
-                )
-                pygame.draw.rect(
-                    self.window, Gui.BLACK, (self.x, self.y, self.size[0] / k, self.size[1] / k), 1, 10
-                )
+                for rect_data in ((Gui.WHITE, 0), (Gui.BLACK, 1)):
+                    pygame.draw.rect(self.window, rect_data[0], self.cords, rect_data[1], 10)
             case 2:
-                pygame.draw.rect(
-                    self.window, Gui.WHITE, (self.x, self.y, self.size[0] / k, self.size[1] / k)
-                )
-                pygame.draw.rect(
-                    self.window, Gui.BLACK, (self.x, self.y, self.size[0] / k, self.size[1] / k), 1
-                )
+                for rect_data in ((Gui.WHITE, 0), (Gui.BLACK, 1)):
+                    pygame.draw.rect(self.window, rect_data[0], self.cords, rect_data[1], rect_data[1])
+            case 3:
+                pygame.draw.polygon(self.window, Gui.WHITE, self.cords)
+                pygame.draw.lines(self.window, Gui.BLACK, True, self.cords, 1)
 
     def update_cords(self, dx, dy):
         self.x -= dx
         self.y -= dy
+        self.set_cords()
 
     def capture_check(self, x, y):
-        return self.x <= x <= (self.x + self.size[0]) and self.y <= y <= (self.y + self.size[1])
+        return self.cords[0] <= x <= (self.cords[0] + self.cords[2]) and \
+            self.cords[1] <= y <= (self.cords[1] + self.cords[3])
+
+    def set_cords(self):
+        x, y = self.x, self.y
+        k = self.skale
+        match self.block_type:
+            case 3:
+                self.cords = ([x, y + (k * self.size[1] / 2)],
+                              [x + k * self.size[0] / 2, y],
+                              [x + self.size[0] * k, y + k * self.size[1] / 2],
+                              [x + k * self.size[0] / 2, y + self.size[1]])
+            case _:
+                self.cords = (x, y, self.size[0] * k, self.size[1] * k)
 
     @staticmethod
     def update_all_cords(dx, dy):
-        for block in Blocks.blocks:
+        for block in Blocks.added_blocks:
             block.update_cords(dx, dy)
 
     @staticmethod
     def block_capture(x, y):
-        for block in Blocks.blocks:
+        for block in Blocks.added_blocks:
             if block.capture_chack(x, y):
                 return block
         return None
@@ -142,7 +152,7 @@ class Gui:
 
         self.tab_sizes = self.TabPosition(self.win_size)
         self.canvas = self.Canvas(self.tab_sizes.canvas, self.win, self.tab_sizes)
-        self.block1 = Blocks(500, 500, self.win, self.win_size, 1)
+        self.block1 = Blocks(500, 500, self.win, self.win_size, 3)
 
         self.win.fill((255, 255, 255))
         self.__initial_gui_rendering()
