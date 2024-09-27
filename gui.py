@@ -18,6 +18,12 @@ class TabPosition:
         self.window_size = ws
         self.main_bg = (0, ws[1] * 0.05, ws[0] * 0.98, ws[1] * 0.90)
         self.objects_block = (ws[0] * 0.004, ws[1] * 0.06, ws[0] * 0.15, ws[1] * 0.88)
+        self.blocks = (
+            (ws[0] * 0.03, ws[0] * 0.005),
+            (ws[0] * 0.18, ws[1] * 0.885),
+            ws[1] * 0.1,
+            (ws[0] // 10, ws[1] // 15)
+        )  # x, y, dy, size
         self.canvas_size = (ws[0] * 0.818, ws[1] * 0.88)
         self.canvas = (2 * self.objects_block[0] + self.objects_block[2], ws[1] * 0.06,
                        self.canvas_size[0], self.canvas_size[1])
@@ -87,6 +93,20 @@ class Canvas:
             ))
 
 
+class BlocksTab:
+    def __init__(self, blocks_size):
+        self.blocks_size = blocks_size
+        self.spawn_queue = None
+
+    def click_check(self, pos) -> bool:
+        ceiling = 8 * self.blocks_size[2]
+        if not (self.blocks_size[0][0] * 1.2 <= pos[0] <= self.blocks_size[1][0] * 0.8 and
+                self.blocks_size[0][1] <= pos[1] <= ceiling):
+            return False
+        self.spawn_queue = pos[1] // self.blocks_size[2]
+        return True
+
+
 class Gui:
     """
     Main ide class
@@ -98,12 +118,13 @@ class Gui:
         self.win_size = win_size
 
         self.canvas_capture = False
-        self.captured_block = (None, None)
+        self.captured_block = None
         self.last_mouse_pos = (0, 0)
 
         self.win = pygame.display.set_mode(self.win_size)
         self.tab_sizes = TabPosition(self.win_size)
         self.canvas = Canvas(self.tab_sizes.canvas, self.win, self.tab_sizes)
+        self.block_tab = BlocksTab(self.tab_sizes.blocks)
         Blocks.set_available_cords(self.canvas.canvas_cords)
 
         self.win.fill((255, 255, 255))
@@ -121,7 +142,32 @@ class Gui:
         pygame.draw.rect(self.win, Style.GRAY, self.tab_sizes.main_bg)
         pygame.draw.rect(self.win, Style.WHITE, self.tab_sizes.objects_block)
         pygame.draw.rect(self.win, Style.DARK_GRAY, self.tab_sizes.objects_block, 1)
-        Blocks.block_button(self.win, self.win_size)
+
+        x, y = self.tab_sizes.blocks[0]
+        y_offset = self.tab_sizes.blocks[2]
+        size = self.tab_sizes.blocks[3]
+
+        for block_id in range(1, 8):
+            cords = list(Blocks.get_cords(x, y + y_offset * block_id, size, 1, block_id))
+
+            match block_id:
+                case 1:
+                    for rect_data in ((Style.WHITE, 0), (Style.BLACK, 1)):
+                        pygame.draw.rect(self.win, rect_data[0], cords[0], rect_data[1], 10)
+                case 2:
+                    for rect_data in ((Style.WHITE, 0), (Style.BLACK, 1)):
+                        pygame.draw.rect(self.win, rect_data[0], cords[0], rect_data[1])
+                case 4:
+                    for rect_data in ((Style.WHITE, 0), (Style.BLACK, 1)):
+                        pygame.draw.rect(self.win, rect_data[0], cords[0], rect_data[1])
+                    pygame.draw.rect(self.win, Style.BLACK, cords[1], 1)
+                case 5:
+                    cords[0][0] += self.win_size[0] * 0.035
+                    for rect_data in ((Style.WHITE, 0), (Style.BLACK, 1)):
+                        pygame.draw.circle(self.win, rect_data[0], *cords, rect_data[1])
+                case _:
+                    pygame.draw.polygon(self.win, Style.WHITE, cords[0])
+                    pygame.draw.lines(self.win, Style.BLACK, True, cords[0], 1)
 
     def __rendering(self) -> None:
         self.canvas.grid_update()
@@ -146,33 +192,26 @@ class Gui:
 
     def __event_mousedown(self, event) -> None:
         if event.button == 1:
-            capture_obg = Blocks.blocks_capture(event.pos)
-            if capture_obg[0] is not None:
-                if capture_obg[1]:
-                    self.captured_block = capture_obg
-                    self.last_mouse_pos = event.pos
-                else:
-                    cords = (self.canvas.canvas_cords[0] + self.win_size[0] * 0.04,
-                             self.canvas.canvas_cords[1] + self.win_size[1] * 0.04)
-                    Blocks.generate_block(
-                        cords, self.win, self.win_size, capture_obg[0].block_type
-                    )
-            elif self.canvas.capture_check(event.pos):
+            self.captured_block = Blocks.blocks_capture(event.pos)
+            self.last_mouse_pos = event.pos
+            if self.canvas.capture_check(event.pos):
                 self.canvas_capture = True
-                self.last_mouse_pos = event.pos
+            elif self.block_tab.click_check(event.pos):
+                new_cords = (self.win_size[0] * 0.18, self.win_size[1] * 0.08)
+                Blocks.generate_block(new_cords, self.win, self.win_size, self.block_tab.spawn_queue)
+                self.block_tab.spawn_queue = None
 
     def __event_mousemove(self, event) -> None:
         dx, dy = [self.last_mouse_pos[_] - event.pos[_] for _ in (0, 1)]
 
-        if self.canvas_capture:
+        if self.captured_block is not None:
+            self.captured_block.update_cords(dx, dy)
+        elif self.canvas_capture:
             self.canvas.update_cord(dx, dy)
             Blocks.update_all_cords(dx, dy)
-        elif self.captured_block[0] is not None:
-            self.captured_block[0].update_cords(dx, dy)
-
         self.last_mouse_pos = event.pos
 
     def __event_mouseup(self, event) -> None:
         self.canvas_capture = False
-        self.captured_block = (None, None)
+        self.captured_block = None
         self.last_mouse_pos = event.pos

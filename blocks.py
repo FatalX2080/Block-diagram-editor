@@ -4,22 +4,23 @@ import styleSheet as Style
 
 class Blocks:
     added_blocks = set()
-    added_blocks_num = -7
+    added_blocks_num = 0
     available_zone = None
 
-    def __init__(self, x, y, win, win_size, block_type, showcase=True):
+    def __init__(self, x, y, win, win_size, block_type):
         # 1 - start; 2 - funk; 3 - if; 4 - out_funk; 5 - linker; 6 - for; 7 - stdin
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
-        self.showcase = showcase
 
         self.skale = 1
         self.x, self.y = x, y
         self.size = (self.win_size[0] // 10, self.win_size[1] // 15)
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
         self.is_visible = True
-        self.set_cords()
+
+        new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
+        self.set_cords(new_cords)
 
         Blocks.added_blocks.add(self)
         Blocks.added_blocks_num += 1
@@ -59,8 +60,10 @@ class Blocks:
         """
         self.x -= dx
         self.y -= dy
-        self.is_visible = self.showcase * self.scope_check()
-        self.set_cords()
+        self.is_visible = self.scope_check()
+
+        new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
+        self.set_cords(new_cords)
 
     def capture_check(self, x, y) -> bool:
         """
@@ -71,46 +74,14 @@ class Blocks:
         """
         return self.x <= x <= (self.x + self.size[0]) and self.y <= y <= (self.y + self.size[1])
 
-    def set_cords(self) -> None:
+    def set_cords(self, t_cords) -> None:
         """
-        Change **self.cords** points of figure (square, oval, ...)
+        Set cords of figure
+        :param t_cords: tuple(cords; cords2)
         :return: None
         """
-        x, y = self.x, self.y
-        x_size, y_size = self.size
-        k = self.skale
-        match self.block_type:
-            case 3:
-                self.cords = (
-                    (x, y + (k * y_size / 2)),
-                    (x + k * x_size / 2, y),
-                    (x + x_size * k, y + k * y_size / 2),
-                    (x + k * x_size / 2, y + y_size)
-                )
-            case 4:
-                self.cords2 = (x + x_size * 0.1, y, x_size * 0.8, y_size)
-                self.cords = (x, y, x_size * k, y_size * k)
-            case 5:
-                r = self.size[1] / 2 * k
-                self.cords = ((x + r, y + r), r)
-            case 6:
-                self.cords = (
-                    (x, y + (k * y_size / 2)),
-                    (x + (k * y_size / 2), y),
-                    (x + x_size - (k * y_size / 2), y),
-                    (x + x_size, y + k * y_size / 2),
-                    (x + x_size - (k * y_size / 2), y + y_size),
-                    (x + (k * y_size / 2), y + y_size)
-                )
-            case 7:
-                self.cords = (
-                    (x + (k * y_size / 2), y),
-                    (x + x_size, y),
-                    (x + x_size - (k * y_size / 2), y + k * y_size),
-                    (x, y + y_size),
-                )
-            case _:
-                self.cords = (x, y, self.size[0] * k, self.size[1] * k)
+        self.cords = t_cords[0]
+        self.cords2 = t_cords[1]
 
     def scope_check(self) -> bool:
         """
@@ -125,6 +96,50 @@ class Blocks:
     # ------------------------------------------------------------------------------------------------------
 
     @staticmethod
+    def get_cords(x, y, size, k, block_type) -> tuple:
+        """
+        Change **self.cords** points of figure (square, oval, ...)
+        :return: tuple(cords; cords2)
+        """
+        x_size, y_size = size
+        cords, cords2 = None, None
+
+        match block_type:
+            case 3:
+                cords = (
+                    (x, y + (k * y_size / 2)),
+                    (x + k * x_size / 2, y),
+                    (x + x_size * k, y + k * y_size / 2),
+                    (x + k * x_size / 2, y + y_size)
+                )
+            case 4:
+                cords = (x, y, x_size * k, y_size * k)
+                cords2 = (x + x_size * 0.1, y, x_size * 0.8, y_size)
+            case 5:
+                cords2 = y_size / 2 * k
+                cords = [x + cords2, y + cords2]
+            case 6:
+                cords = (
+                    (x, y + (k * y_size / 2)),
+                    (x + (k * y_size / 2), y),
+                    (x + x_size - (k * y_size / 2), y),
+                    (x + x_size, y + k * y_size / 2),
+                    (x + x_size - (k * y_size / 2), y + y_size),
+                    (x + (k * y_size / 2), y + y_size)
+                )
+            case 7:
+                cords = (
+                    (x + (k * y_size / 2), y),
+                    (x + x_size, y),
+                    (x + x_size - (k * y_size / 2), y + k * y_size),
+                    (x, y + y_size),
+                )
+            case _:
+                cords = (x, y, x_size * k, y_size * k)
+
+        return cords, cords2
+
+    @staticmethod
     def update_all_cords(dx, dy) -> None:
         """
         Change cords of all blocks
@@ -136,17 +151,17 @@ class Blocks:
             block.update_cords(dx, dy)
 
     @staticmethod
-    def blocks_capture(pos) -> tuple:
+    def blocks_capture(pos) -> (object | None):
         """
         Check all blocks for capturing
         :param pos: (click.x, click.y)
-        :return: (block id | block visible mode) if find (None | None) else
+        :return: (block id; block visible mode) if find (None; None) else
         """
         x, y = pos
         for block in Blocks.added_blocks:
             if block.capture_check(x, y):
-                return block, block.showcase
-        return None, None
+                return block
+        return None
 
     @staticmethod
     def set_available_cords(available) -> None:
@@ -156,18 +171,6 @@ class Blocks:
         :return: None
         """
         Blocks.available_zone = available
-
-    @staticmethod
-    def block_button(win, win_size) -> None:
-        """
-        Generte all blocks as buttons (fix pos and clickable)
-        :param win: pygame.window
-        :param win_size: tuple of windows size
-        :return:
-        """
-        for block_id in range(1, 8):
-            block = Blocks(win_size[0] * 0.03, 70 * block_id, win, win_size, block_id, False)
-            block.draw()
 
     @staticmethod
     def generate_block(user_cords, win, win_size, block_id) -> None:
