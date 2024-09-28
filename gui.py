@@ -99,9 +99,8 @@ class BlocksTab:
         self.spawn_queue = None
 
     def click_check(self, pos) -> bool:
-        ceiling = 8 * self.blocks_size[2]
         if not (self.blocks_size[0][0] * 1.2 <= pos[0] <= self.blocks_size[1][0] * 0.8 and
-                self.blocks_size[0][1] <= pos[1] <= ceiling):
+                self.blocks_size[0][1] <= pos[1] <= 8 * self.blocks_size[2]):
             return False
         self.spawn_queue = pos[1] // self.blocks_size[2]
         return True

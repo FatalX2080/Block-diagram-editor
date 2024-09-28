@@ -19,6 +19,10 @@ class Blocks:
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
         self.is_visible = True
 
+        self.rings_radius = win_size[1] // 150
+        self.line_rings_cords = (0, 0, 0, 0)
+        self.is_visible_rings = False
+
         new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
         self.set_cords(new_cords)
 
@@ -51,6 +55,10 @@ class Blocks:
                     draw.polygon(self.window, Style.WHITE, self.cords)
                     draw.lines(self.window, Style.BLACK, True, self.cords, 1)
 
+        if self.is_visible_rings:
+            for r in range(4):
+                draw.circle(self.window, Style.BLUE, self.line_rings_cords[r], self.rings_radius, 2)
+
     def update_cords(self, dx, dy) -> None:
         """
         Update cords of this block
@@ -80,6 +88,11 @@ class Blocks:
         :param t_cords: tuple(cords; cords2)
         :return: None
         """
+
+        self.line_rings_cords = ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
+                                 (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
+                                 (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
+                                 (self.x - self.size[1] // 5, self.y + self.size[1] // 2))
         self.cords = t_cords[0]
         self.cords2 = t_cords[1]
 
