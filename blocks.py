@@ -2,13 +2,37 @@ from pygame import draw
 import styleSheet as Style
 
 
+class ConnectorRings:
+    def __init__(self, r, visible=False):
+        self.radius = r
+        self.visible = visible
+
+    @staticmethod
+    def connectors_capture(pos) -> (tuple | None):
+        """
+        Check all blocks for capturing
+        :param pos: (click.x, click.y)
+        :return: connector + block id if find None else
+        """
+        x, y = pos
+
+        for ring in Blocks.line_rings:
+            if ring.capture_check(x, y):
+                return ()
+        return None
+
+
 class Blocks:
     added_blocks = set()
+    line_rings = set()
+    size_rings = set()
+
     added_blocks_num = 0
     available_zone = None
 
     def __init__(self, x, y, win, win_size, block_type):
         # 1 - start; 2 - funk; 3 - if; 4 - out_funk; 5 - linker; 6 - for; 7 - stdin
+
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
@@ -17,14 +41,10 @@ class Blocks:
         self.x, self.y = x, y
         self.size = (self.win_size[0] // 10, self.win_size[1] // 15)
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
+        self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
         self.is_visible = True
 
-        self.rings_radius = win_size[1] // 150
-        self.line_rings_cords = (0, 0, 0, 0)
-        self.is_visible_rings = False
-
-        new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
-        self.set_cords(new_cords)
+        self.connector_rings = ConnectorRings(win_size[1] // 150)
 
         Blocks.added_blocks.add(self)
         Blocks.added_blocks_num += 1
@@ -56,8 +76,8 @@ class Blocks:
                     draw.lines(self.window, Style.BLACK, True, self.cords, 1)
 
         if self.is_visible_rings:
-            for r in range(4):
-                draw.circle(self.window, Style.BLUE, self.line_rings_cords[r], self.rings_radius, 2)
+            for cords in self.line_rings_cords:
+                draw.circle(self.window, Style.BLUE, cords, self.rings_radius, 2)
 
     def update_cords(self, dx, dy) -> None:
         """
@@ -105,6 +125,13 @@ class Blocks:
             (self.x + self.size[0]) <= Blocks.available_zone[2] and \
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
+
+    def switch_visible_rings(self) -> None:
+        """
+        Change visibility of connection rings on canvas
+        """
+        self.is_visible_rings = not self.is_visible_rings
+        Blocks.line_rings = self.line_rings_cords
 
     # ------------------------------------------------------------------------------------------------------
 
@@ -168,7 +195,7 @@ class Blocks:
         """
         Check all blocks for capturing
         :param pos: (click.x, click.y)
-        :return: (block id; block visible mode) if find (None; None) else
+        :return: block id if find None else
         """
         x, y = pos
         for block in Blocks.added_blocks:

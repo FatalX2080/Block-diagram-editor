@@ -192,6 +192,7 @@ class Gui:
     def __event_mousedown(self, event) -> None:
         if event.button == 1:
             self.captured_block = Blocks.blocks_capture(event.pos)
+            self.captured_connector = Blocks.connectors_capture(event.pos)
             self.last_mouse_pos = event.pos
             if self.canvas.capture_check(event.pos):
                 self.canvas_capture = True
@@ -199,6 +200,10 @@ class Gui:
                 new_cords = (self.win_size[0] * 0.18, self.win_size[1] * 0.08)
                 Blocks.generate_block(new_cords, self.win, self.win_size, self.block_tab.spawn_queue)
                 self.block_tab.spawn_queue = None
+        elif event.button == 3:
+            self.captured_block = Blocks.blocks_capture(event.pos)
+            if self.captured_block:
+                self.captured_block.switch_visible_rings()
 
     def __event_mousemove(self, event) -> None:
         dx, dy = [self.last_mouse_pos[_] - event.pos[_] for _ in (0, 1)]
