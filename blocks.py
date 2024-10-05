@@ -3,28 +3,83 @@ import styleSheet as Style
 
 
 class ConnectorRings:
-    def __init__(self, r, visible=False):
+    win = None
+    active_ring = None  # visible rings objects
+    rings = set()  # all rings objects
+    available_zone = None
+
+    def __init__(self, r, zone):
         self.radius = r
-        self.visible = visible
+        self.cords = None
+
+        self.visible = [0, 0, 0, 0]
+        self.active = False
+
+        self.used_sides = [0, 0, 0, 0]
+
+        ConnectorRings.rings.add(self)
+        ConnectorRings.available_zone = (zone[0] + self.radius, zone[1] + self.radius,
+                                         zone[2] - self.radius, zone[3] - self.radius)
+
+    def draw(self) -> None:
+        if self.active:
+            for vs, pos in zip(self.visible, self.cords):
+                if not vs:
+                    continue
+                draw.circle(ConnectorRings.win, Style.BLUE, pos, self.radius, 2)
+
+    def hide(self) -> None:
+        self.active = False
+        self.visible = [0, 0, 0, 0]
+
+    def set_cords(self, cords) -> None:
+        self.cords = cords
+        self.scope_check()
+
+    def switch_visible_rings(self) -> bool:
+        """
+        Change visibility of connection rings on canvas
+        """
+
+        self.active = not self.active
+        ConnectorRings.active_ring = None
+        if self.active:
+            self.scope_check()
+            ConnectorRings.active_ring = self
+
+        return self.active
+
+    def scope_check(self) -> None:
+        """
+        Checking of available zone intersection
+        """
+        for i in range(4):
+            x, y = self.cords[i]
+            self.visible[i] = (ConnectorRings.available_zone[0] <= x <= ConnectorRings.available_zone[2] and
+                               ConnectorRings.available_zone[1] <= y <= ConnectorRings.available_zone[3])
+
+    def capture_check(self, x, y) -> int | None:
+        """
+        Check if mouse click by this block
+        :param x: mouse x click
+        :param y: mouse y click
+        :return:
+        """
+        for i in range(4):
+            rx, ry = self.cords[i]
+            if abs(x - rx) <= self.radius and abs(y - ry) <= self.radius:
+                return i
+        return None
+
+    # ------------------------------------------------------------------------------------------------------
 
     @staticmethod
-    def connectors_capture(pos) -> (tuple | None):
-        """
-        Check all blocks for capturing
-        :param pos: (click.x, click.y)
-        :return: connector + block id if find None else
-        """
-        x, y = pos
-
-        for ring in Blocks.line_rings:
-            if ring.capture_check(x, y):
-                return ()
-        return None
+    def set_win(win):
+        ConnectorRings.win = win
 
 
 class Blocks:
     added_blocks = set()
-    line_rings = set()
     size_rings = set()
 
     added_blocks_num = 0
@@ -37,14 +92,15 @@ class Blocks:
         self.win_size = win_size
         self.block_type = block_type
 
+        self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone)
+        self.connector_rings.set_win(self.window)
+
         self.skale = 1
         self.x, self.y = x, y
         self.size = (self.win_size[0] // 10, self.win_size[1] // 15)
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
         self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
-        self.is_visible = True
-
-        self.connector_rings = ConnectorRings(win_size[1] // 150)
+        self.visible = True
 
         Blocks.added_blocks.add(self)
         Blocks.added_blocks_num += 1
@@ -56,7 +112,7 @@ class Blocks:
         Draw bloock on canvas
         :return: None
         """
-        if self.is_visible:
+        if self.visible:
             match self.block_type:
                 case 1:
                     for rect_data in ((Style.WHITE, 0), (Style.BLACK, 1)):
@@ -75,9 +131,7 @@ class Blocks:
                     draw.polygon(self.window, Style.WHITE, self.cords)
                     draw.lines(self.window, Style.BLACK, True, self.cords, 1)
 
-        if self.is_visible_rings:
-            for cords in self.line_rings_cords:
-                draw.circle(self.window, Style.BLUE, cords, self.rings_radius, 2)
+        self.connector_rings.draw()
 
     def update_cords(self, dx, dy) -> None:
         """
@@ -88,10 +142,15 @@ class Blocks:
         """
         self.x -= dx
         self.y -= dy
-        self.is_visible = self.scope_check()
+        self.set_visible(self.scope_check())
 
         new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
         self.set_cords(new_cords)
+
+    def set_visible(self, visible) -> None:
+        self.visible = visible
+        if not visible:
+            self.connector_rings.hide()
 
     def capture_check(self, x, y) -> bool:
         """
@@ -108,11 +167,12 @@ class Blocks:
         :param t_cords: tuple(cords; cords2)
         :return: None
         """
-
-        self.line_rings_cords = ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
-                                 (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
-                                 (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
-                                 (self.x - self.size[1] // 5, self.y + self.size[1] // 2))
+        self.connector_rings.set_cords(
+            ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
+             (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
+             (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
+             (self.x - self.size[1] // 5, self.y + self.size[1] // 2))
+        )
         self.cords = t_cords[0]
         self.cords2 = t_cords[1]
 
@@ -125,13 +185,6 @@ class Blocks:
             (self.x + self.size[0]) <= Blocks.available_zone[2] and \
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
-
-    def switch_visible_rings(self) -> None:
-        """
-        Change visibility of connection rings on canvas
-        """
-        self.is_visible_rings = not self.is_visible_rings
-        Blocks.line_rings = self.line_rings_cords
 
     # ------------------------------------------------------------------------------------------------------
 
@@ -204,7 +257,19 @@ class Blocks:
         return None
 
     @staticmethod
-    def set_available_cords(available) -> None:
+    def connect_ring_capture(pos) -> (object | None):
+        """
+        Check all blocks for capturing
+        :param pos: (click.x, click.y)
+        :return: block id if find None else
+        """
+        x, y = pos
+        if ConnectorRings.active_ring is not None:
+            return ConnectorRings.active_ring.capture_check(x, y)
+        return None
+
+    @staticmethod
+    def set_available_zone(available) -> None:
         """
         Set an available zone for blocks (canvas cords)
         :param available:  tuple[4]

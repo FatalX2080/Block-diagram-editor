@@ -124,7 +124,7 @@ class Gui:
         self.tab_sizes = TabPosition(self.win_size)
         self.canvas = Canvas(self.tab_sizes.canvas, self.win, self.tab_sizes)
         self.block_tab = BlocksTab(self.tab_sizes.blocks)
-        Blocks.set_available_cords(self.canvas.canvas_cords)
+        Blocks.set_available_zone(self.canvas.canvas_cords)
 
         self.win.fill((255, 255, 255))
         self.__initial_gui_rendering()
@@ -192,8 +192,11 @@ class Gui:
     def __event_mousedown(self, event) -> None:
         if event.button == 1:
             self.captured_block = Blocks.blocks_capture(event.pos)
-            self.captured_connector = Blocks.connectors_capture(event.pos)
+            self.captured_connector = Blocks.connect_ring_capture(event.pos)
             self.last_mouse_pos = event.pos
+
+            if self.captured_connector:
+              pass
             if self.canvas.capture_check(event.pos):
                 self.canvas_capture = True
             elif self.block_tab.click_check(event.pos):
@@ -203,7 +206,7 @@ class Gui:
         elif event.button == 3:
             self.captured_block = Blocks.blocks_capture(event.pos)
             if self.captured_block:
-                self.captured_block.switch_visible_rings()
+                self.captured_block.connector_rings.switch_visible_rings()
 
     def __event_mousemove(self, event) -> None:
         dx, dy = [self.last_mouse_pos[_] - event.pos[_] for _ in (0, 1)]
