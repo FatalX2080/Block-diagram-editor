@@ -15,8 +15,6 @@ class ConnectorRings:
         self.visible = [0, 0, 0, 0]
         self.active = False
 
-        self.used_sides = [0, 0, 0, 0]
-
         ConnectorRings.rings.add(self)
         ConnectorRings.available_zone = (zone[0] + self.radius, zone[1] + self.radius,
                                          zone[2] - self.radius, zone[3] - self.radius)
@@ -32,8 +30,10 @@ class ConnectorRings:
         self.active = False
         self.visible = [0, 0, 0, 0]
 
-    def set_cords(self, cords) -> None:
+    def set_cords(self, cords, visible) -> None:
         self.cords = cords
+        if not visible:
+            self.hide()
         self.scope_check()
 
     def switch_visible_rings(self) -> bool:
@@ -78,6 +78,61 @@ class ConnectorRings:
         ConnectorRings.win = win
 
 
+class ConnectLine:
+    pass
+
+
+class Text:
+    win = None
+
+    def __init__(self, text, pos, block_size):
+        self.string = text
+        self.render = None
+        self.rendering()
+        self.block_size = block_size
+        self.x_offset = self.calculate_x_offset()
+        self.y_offset = self.block_size[1] // 3
+        self.x = pos[0] + self.x_offset
+        self.y = pos[1] + self.y_offset
+        self.visible = True
+
+    def draw(self):
+        if self.visible:
+            Text.win.blit(self.render, (self.x, self.y))
+
+    def update_cords(self, dx, dy, visible):
+        self.x -= dx
+        self.y -= dy
+        self.visible = visible
+
+    def calculate_x_offset(self) -> int:
+        return (self.block_size[0] - (self.render.get_width())) // 2
+
+    def add_litter(self, litter):
+        self.string += litter
+        last_len = self.render.get_width()
+        self.rendering()
+        self.x += (last_len - self.render.get_width())/2
+
+    def rendering(self):
+        self.render = Style.FONT.render(self.string, True, Style.BLACK)
+
+    # ------------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def set_win(win):
+        Text.win = win
+
+    @staticmethod
+    def get_basic_text(block_num) -> tuple:
+        match block_num:
+            case 1:
+                return "Начало",
+            case 2:
+                return "", "да", "нет"
+        return "",
+
+
 class Blocks:
     added_blocks = set()
     size_rings = set()
@@ -92,8 +147,9 @@ class Blocks:
         self.win_size = win_size
         self.block_type = block_type
 
+        ConnectorRings.set_win(self.window)
         self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone)
-        self.connector_rings.set_win(self.window)
+        self.used_sides = [0, 0, 0, 0]
 
         self.skale = 1
         self.x, self.y = x, y
@@ -101,6 +157,12 @@ class Blocks:
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
         self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
         self.visible = True
+
+        Text.set_win(self.window)
+        text = Text.get_basic_text(self.block_type)
+        self.edit_mode = False
+        self.text = Text(text[0], (self.x, self.y), self.size)
+        self.add_text = ()
 
         Blocks.added_blocks.add(self)
         Blocks.added_blocks_num += 1
@@ -132,6 +194,9 @@ class Blocks:
                     draw.lines(self.window, Style.BLACK, True, self.cords, 1)
 
         self.connector_rings.draw()
+        self.text.draw()
+        for text in self.add_text:
+            text.draw()
 
     def update_cords(self, dx, dy) -> None:
         """
@@ -142,15 +207,19 @@ class Blocks:
         """
         self.x -= dx
         self.y -= dy
-        self.set_visible(self.scope_check())
+        self.visible = self.scope_check()
+
+        self.text.update_cords(dx, dy, self.visible)
+        self.connector_rings.set_cords(
+            ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
+             (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
+             (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
+             (self.x - self.size[1] // 5, self.y + self.size[1] // 2)),
+            self.visible
+        )
 
         new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
         self.set_cords(new_cords)
-
-    def set_visible(self, visible) -> None:
-        self.visible = visible
-        if not visible:
-            self.connector_rings.hide()
 
     def capture_check(self, x, y) -> bool:
         """
@@ -167,12 +236,7 @@ class Blocks:
         :param t_cords: tuple(cords; cords2)
         :return: None
         """
-        self.connector_rings.set_cords(
-            ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
-             (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
-             (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
-             (self.x - self.size[1] // 5, self.y + self.size[1] // 2))
-        )
+
         self.cords = t_cords[0]
         self.cords2 = t_cords[1]
 
@@ -186,12 +250,15 @@ class Blocks:
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
 
+    def add_litter(self, litter):
+        self.text.add_litter(chr(litter))
+
     # ------------------------------------------------------------------------------------------------------
 
     @staticmethod
     def get_cords(x, y, size, k, block_type) -> tuple:
         """
-        Change **self.cords** points of figure (square, oval, ...)
+        Calculates block points (square, oval, ...)
         :return: tuple(cords; cords2)
         """
         x_size, y_size = size
@@ -298,3 +365,12 @@ class Blocks:
         """
         for block in Blocks.added_blocks:
             block.draw()
+
+    @staticmethod
+    def disable_all_editing() -> None:
+        """
+        Disable all text editing
+        :return: None
+        """
+        for block in Blocks.added_blocks:
+            block.editing = False

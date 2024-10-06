@@ -118,6 +118,7 @@ class Gui:
 
         self.canvas_capture = False
         self.captured_block = None
+        self.last_captured_block = None
         self.last_mouse_pos = (0, 0)
 
         self.win = pygame.display.set_mode(self.win_size)
@@ -188,21 +189,27 @@ class Gui:
                     self.__event_mousemove(event)
                 case pygame.MOUSEBUTTONUP:
                     self.__event_mouseup(event)
+                case pygame.KEYDOWN:
+                    self.__event_keydown(event)
 
     def __event_mousedown(self, event) -> None:
         if event.button == 1:
-            self.captured_block = Blocks.blocks_capture(event.pos)
+            captured_block = Blocks.blocks_capture(event.pos)
             self.captured_connector = Blocks.connect_ring_capture(event.pos)
             self.last_mouse_pos = event.pos
 
-            if self.captured_connector:
-              pass
-            if self.canvas.capture_check(event.pos):
+            if captured_block is not None and captured_block == self.last_captured_block:
+                captured_block.edit_mode = True
+            elif self.captured_connector:
+                # TODO add line creation
+                pass
+            elif self.canvas.capture_check(event.pos):
                 self.canvas_capture = True
             elif self.block_tab.click_check(event.pos):
                 new_cords = (self.win_size[0] * 0.18, self.win_size[1] * 0.08)
                 Blocks.generate_block(new_cords, self.win, self.win_size, self.block_tab.spawn_queue)
                 self.block_tab.spawn_queue = None
+            self.captured_block = captured_block
         elif event.button == 3:
             self.captured_block = Blocks.blocks_capture(event.pos)
             if self.captured_block:
@@ -220,5 +227,10 @@ class Gui:
 
     def __event_mouseup(self, event) -> None:
         self.canvas_capture = False
+        self.last_captured_block = self.captured_block
         self.captured_block = None
         self.last_mouse_pos = event.pos
+
+    def __event_keydown(self, event) -> None:
+        if self.last_captured_block is not None and self.last_captured_block.edit_mode:
+            self.last_captured_block.add_litter(event.key)
