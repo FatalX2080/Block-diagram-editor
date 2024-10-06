@@ -89,33 +89,47 @@ class Text:
         self.string = text
         self.render = None
         self.rendering()
+
+        shape = self.get_shape()
         self.block_size = block_size
-        self.x_offset = self.calculate_x_offset()
-        self.y_offset = self.block_size[1] // 3
-        self.x = pos[0] + self.x_offset
-        self.y = pos[1] + self.y_offset
+        self.x = pos[0] + (self.block_size[0] - shape[0]) / 2
+        self.y = pos[1] + (self.block_size[1] - shape[1]) / 2
+
         self.visible = True
 
-    def draw(self):
+    def draw(self) -> None:
+        """
+        Display block text on canvas
+        """
         if self.visible:
             Text.win.blit(self.render, (self.x, self.y))
 
-    def update_cords(self, dx, dy, visible):
+    def update_cords(self, dx, dy, visible) -> None:
+        """
+        Change text position on canvas
+        """
         self.x -= dx
         self.y -= dy
         self.visible = visible
 
-    def calculate_x_offset(self) -> int:
-        return (self.block_size[0] - (self.render.get_width())) // 2
+    def add_litter(self, litter) -> None:
 
-    def add_litter(self, litter):
-        self.string += litter
-        last_len = self.render.get_width()
+        self.string += [litter]
+        l_width = self.get_shape()[0]
         self.rendering()
-        self.x += (last_len - self.render.get_width())/2
+        self.x += (l_width - self.get_shape()[0]) / 2
 
-    def rendering(self):
-        self.render = Style.FONT.render(self.string, True, Style.BLACK)
+    def pop_litter(self) -> None:
+        self.string.pop()
+        l_width = self.get_shape()[0]
+        self.rendering()
+        self.x += (l_width - self.get_shape()[0]) / 2
+
+    def rendering(self) -> None:
+        self.render = Style.FONT.render("".join(self.string), True, Style.BLACK)
+
+    def get_shape(self) -> tuple:
+        return self.render.get_width(), self.render.get_height()
 
     # ------------------------------------------------------------------------------------------------------
 
@@ -127,10 +141,10 @@ class Text:
     def get_basic_text(block_num) -> tuple:
         match block_num:
             case 1:
-                return "Начало",
+                return list("Начало"),
             case 2:
-                return "", "да", "нет"
-        return "",
+                return list(""), list("да"), list("нет")
+        return list(""),
 
 
 class Blocks:
@@ -250,8 +264,12 @@ class Blocks:
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
 
-    def add_litter(self, litter):
-        self.text.add_litter(chr(litter))
+    def update_litter(self, litter):
+        match litter:
+            case 8:
+                self.text.pop_litter()
+            case _:
+                self.text.add_litter(chr(litter))
 
     # ------------------------------------------------------------------------------------------------------
 

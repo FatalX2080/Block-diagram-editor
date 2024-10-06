@@ -1,8 +1,10 @@
+from pygame.key import set_repeat
+
 from blocks import Blocks
 import styleSheet as Style
-
+from time import time
 import pygame
-import sys
+from sys import exit
 from math import ceil
 import numpy as np
 
@@ -120,6 +122,7 @@ class Gui:
         self.captured_block = None
         self.last_captured_block = None
         self.last_mouse_pos = (0, 0)
+        self.last_click_time = time()
 
         self.win = pygame.display.set_mode(self.win_size)
         self.tab_sizes = TabPosition(self.win_size)
@@ -182,7 +185,7 @@ class Gui:
             match event.type:
                 case pygame.QUIT:
                     pygame.quit()
-                    sys.exit()
+                    exit()
                 case pygame.MOUSEBUTTONDOWN:
                     self.__event_mousedown(event)
                 case pygame.MOUSEMOTION:
@@ -197,6 +200,9 @@ class Gui:
             captured_block = Blocks.blocks_capture(event.pos)
             self.captured_connector = Blocks.connect_ring_capture(event.pos)
             self.last_mouse_pos = event.pos
+
+            if time() - self.last_click_time > 1:
+                self.last_captured_block = None
 
             if captured_block is not None and captured_block == self.last_captured_block:
                 captured_block.edit_mode = True
@@ -230,7 +236,8 @@ class Gui:
         self.last_captured_block = self.captured_block
         self.captured_block = None
         self.last_mouse_pos = event.pos
+        self.last_click_time = time()
 
     def __event_keydown(self, event) -> None:
         if self.last_captured_block is not None and self.last_captured_block.edit_mode:
-            self.last_captured_block.add_litter(event.key)
+            self.last_captured_block.update_litter(event.key)
