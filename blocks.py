@@ -8,9 +8,11 @@ class ConnectorRings:
     rings = set()  # all rings objects
     available_zone = None
 
-    def __init__(self, r, zone):
+    def __init__(self, r, zone, block):
         self.radius = r
         self.cords = None
+
+        self.block = block
 
         self.visible = [0, 0, 0, 0]
         self.active = False
@@ -58,7 +60,7 @@ class ConnectorRings:
             self.visible[i] = (ConnectorRings.available_zone[0] <= x <= ConnectorRings.available_zone[2] and
                                ConnectorRings.available_zone[1] <= y <= ConnectorRings.available_zone[3])
 
-    def capture_check(self, x, y) -> int | None:
+    def capture_check(self, x, y) -> tuple | None:
         """
         Check if mouse click by this block
         :param x: mouse x click
@@ -67,8 +69,8 @@ class ConnectorRings:
         """
         for i in range(4):
             rx, ry = self.cords[i]
-            if abs(x - rx) <= self.radius and abs(y - ry) <= self.radius:
-                return i
+            if abs(x - rx) <= self.radius * 1.5 and abs(y - ry) <= self.radius * 1.5:
+                return self.block, i + 1
         return None
 
     # ------------------------------------------------------------------------------------------------------
@@ -79,7 +81,27 @@ class ConnectorRings:
 
 
 class ConnectLine:
-    pass
+    win = None
+
+    def __init__(self, io, spos, epos):
+        self.io = io
+        self.start_pos = list(spos)
+        self.end_pos = list(epos)
+
+    def draw(self) -> None:
+        draw.line(ConnectLine.win, Style.BLACK, self.start_pos, self.end_pos)
+
+    def update_cords(self, side, dx, dy) -> None:
+        match side:
+            case 1:
+                # end
+                self.start_pos[0] -= dx
+                self.start_pos[1] -= dy
+
+            case 0:
+                # start
+                self.end_pos[0] -= dx
+                self.end_pos[1] -= dy
 
 
 class Text:
@@ -151,6 +173,8 @@ class Blocks:
     added_blocks = set()
     size_rings = set()
 
+    grid_step = 1
+
     added_blocks_num = 0
     available_zone = None
 
@@ -162,7 +186,9 @@ class Blocks:
         self.block_type = block_type
 
         ConnectorRings.set_win(self.window)
-        self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone)
+        self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
+
+        ConnectLine.win = self.window
         self.used_sides = [0, 0, 0, 0]
 
         self.skale = 1
@@ -211,6 +237,10 @@ class Blocks:
         self.text.draw()
         for text in self.add_text:
             text.draw()
+        for line in self.used_sides:
+            if line:
+                line.draw()
+
 
     def update_cords(self, dx, dy) -> None:
         """
@@ -221,6 +251,7 @@ class Blocks:
         """
         self.x -= dx
         self.y -= dy
+
         self.visible = self.scope_check()
 
         self.text.update_cords(dx, dy, self.visible)
@@ -271,6 +302,29 @@ class Blocks:
             case _:
                 self.text.add_litter(chr(litter))
 
+    def create_cnn_line(self, connector_id: int, pos) -> None:
+        match connector_id:
+            case 1:
+                x = self.x + self.size[0] // 2
+                y = self.y + self.size[1]
+            case 2:
+                x = self.x + self.size[0] // 2
+                y = self.y
+            case 3:
+                x = self.x + self.size[0]
+                y = self.y + self.size[1] // 2
+            case _:
+                x = self.x
+                y = self.y + self.size[1] // 2
+
+        self.used_sides[connector_id] = ConnectLine(0, (x, y), pos)
+
+    def set_cnn_line_epos(self, connector_id, pos):
+        self.used_sides[connector_id].update_cords(0, *pos)
+
+    def link_cnn_line(self, iex, line_obj):
+        self.used_sides[iex] = line_obj
+
     # ------------------------------------------------------------------------------------------------------
 
     @staticmethod
@@ -284,12 +338,12 @@ class Blocks:
 
         match block_type:
             case 3:
-                cords = (
-                    (x, y + (k * y_size / 2)),
-                    (x + k * x_size / 2, y),
-                    (x + x_size * k, y + k * y_size / 2),
-                    (x + k * x_size / 2, y + y_size)
-                )
+                cords = [
+                    [x, y + (k * y_size / 2)],
+                    [x + k * x_size / 2, y],
+                    [x + x_size * k, y + k * y_size / 2],
+                    [x + k * x_size / 2, y + y_size]
+                ]
             case 4:
                 cords = (x, y, x_size * k, y_size * k)
                 cords2 = (x + x_size * 0.1, y, x_size * 0.8, y_size)
@@ -342,7 +396,7 @@ class Blocks:
         return None
 
     @staticmethod
-    def connect_ring_capture(pos) -> (object | None):
+    def connect_ring_capture(pos) -> (tuple | None):
         """
         Check all blocks for capturing
         :param pos: (click.x, click.y)
@@ -392,3 +446,7 @@ class Blocks:
         """
         for block in Blocks.added_blocks:
             block.editing = False
+
+    @staticmethod
+    def set_grid_step(step):
+        Blocks.grid_step = step

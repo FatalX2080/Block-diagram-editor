@@ -1,11 +1,9 @@
-from pygame.key import set_repeat
-
 from blocks import Blocks
-import styleSheet as Style
-from time import time
-import pygame
 from sys import exit
 from math import ceil
+from time import time
+import styleSheet as Style
+import pygame
 import numpy as np
 
 
@@ -121,6 +119,7 @@ class Gui:
         self.canvas_capture = False
         self.captured_block = None
         self.last_captured_block = None
+        self.line_active = False
         self.last_mouse_pos = (0, 0)
         self.last_click_time = time()
 
@@ -129,6 +128,7 @@ class Gui:
         self.canvas = Canvas(self.tab_sizes.canvas, self.win, self.tab_sizes)
         self.block_tab = BlocksTab(self.tab_sizes.blocks)
         Blocks.set_available_zone(self.canvas.canvas_cords)
+        Blocks.set_grid_step(self.canvas.grid_step)
 
         self.win.fill((255, 255, 255))
         self.__initial_gui_rendering()
@@ -206,15 +206,17 @@ class Gui:
 
             if captured_block is not None and captured_block == self.last_captured_block:
                 captured_block.edit_mode = True
-            elif self.captured_connector:
-                # TODO add line creation
-                pass
+
+            elif self.captured_connector is not None:
+                self.line_active = self.captured_connector[1]
+                self.captured_connector[0].create_cnn_line(self.line_active, event.pos)
             elif self.canvas.capture_check(event.pos):
                 self.canvas_capture = True
             elif self.block_tab.click_check(event.pos):
                 new_cords = (self.win_size[0] * 0.18, self.win_size[1] * 0.08)
                 Blocks.generate_block(new_cords, self.win, self.win_size, self.block_tab.spawn_queue)
                 self.block_tab.spawn_queue = None
+
             self.captured_block = captured_block
         elif event.button == 3:
             self.captured_block = Blocks.blocks_capture(event.pos)
@@ -224,7 +226,9 @@ class Gui:
     def __event_mousemove(self, event) -> None:
         dx, dy = [self.last_mouse_pos[_] - event.pos[_] for _ in (0, 1)]
 
-        if self.captured_block is not None:
+        if self.line_active:
+            self.captured_connector[0].set_cnn_line_epos(self.line_active, (dx, dy))
+        elif self.captured_block is not None:
             self.captured_block.update_cords(dx, dy)
         elif self.canvas_capture:
             self.canvas.update_cord(dx, dy)

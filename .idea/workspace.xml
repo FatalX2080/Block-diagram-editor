@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03748a31-ff01-42e8-ad7e-f02454a1e0fe" name="Changes" comment="Add Text class and connect line">
+    <list default="true" id="03748a31-ff01-42e8-ad7e-f02454a1e0fe" name="Changes" comment="Complete main text edit mode">
       <change afterPath="$PROJECT_DIR$/autogen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blocks.py" beforeDir="false" afterPath="$PROJECT_DIR$/blocks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui.py" afterDir="false" />
@@ -211,7 +213,8 @@
       <workItem from="1727770333300" duration="115000" />
       <workItem from="1727961506260" duration="4392000" />
       <workItem from="1728053817203" duration="17000" />
-      <workItem from="1728161759983" duration="16055000" />
+      <workItem from="1728161759983" duration="17924000" />
+      <workItem from="1728291663643" duration="5317000" />
     </task>
     <task id="LOCAL-00001" summary="First commit">
       <option name="closed" value="true" />
@@ -309,7 +312,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728185590752</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Complete main text edit mode">
+      <option name="closed" value="true" />
+      <created>1728213854430</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1728213854430</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -367,7 +378,8 @@
     <MESSAGE value="Lots of different edits" />
     <MESSAGE value="Add connectors ring class and its methods" />
     <MESSAGE value="Add Text class and connect line" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Text class and connect line" />
+    <MESSAGE value="Complete main text edit mode" />
+    <option name="LAST_COMMIT_MESSAGE" value="Complete main text edit mode" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/main_py$autogen.coverage" NAME="autogen Coverage Results" MODIFIED="1728166308052" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
@@ -376,6 +388,6 @@
     <SUITE FILE_PATH="coverage/BlockSchemeEditor$test.coverage" NAME="test Coverage Results" MODIFIED="1727273923020" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/main_py$gui.coverage" NAME="gui Coverage Results" MODIFIED="1727961742994" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/BlockSchemeEditor$main.coverage" NAME="main Coverage Results" MODIFIED="1727294282127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1728213364303" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1728296889109" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
