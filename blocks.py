@@ -1,3 +1,5 @@
+from os import lseek
+
 from pygame import draw
 import styleSheet as Style
 
@@ -5,10 +7,12 @@ from blocks_parts.connector_rings import ConnectorRings
 from blocks_parts.text import Text
 from blocks_parts.connect_lines import ConnectLines
 
+from time import time
+
 
 class Blocks:
     added_blocks = set()
-    grid_step = 1
+    # grid_step = 1
     added_blocks_num = 0
     available_zone = None
 
@@ -18,7 +22,7 @@ class Blocks:
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
-        self.set_win()
+        self.put_dependencies_window()
 
         self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
 
@@ -30,6 +34,8 @@ class Blocks:
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
         self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
         self.visible = True
+
+        self.last_click_time = time()
 
         text = Text.get_basic_text(self.block_type)
         self.edit_mode = False
@@ -97,15 +103,6 @@ class Blocks:
         new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
         self.set_cords(new_cords)
 
-    def capture_check(self, x, y) -> bool:
-        """
-        Check if mouse click by this block
-        :param x: mouse x click
-        :param y: mouse y click
-        :return:
-        """
-        return self.x <= x <= (self.x + self.size[0]) and self.y <= y <= (self.y + self.size[1])
-
     def set_cords(self, t_cords) -> None:
         """
         Set cords of figure
@@ -115,6 +112,15 @@ class Blocks:
 
         self.cords = t_cords[0]
         self.cords2 = t_cords[1]
+
+    def capture_check(self, x, y) -> bool:
+        """
+        Check if mouse click by this block
+        :param x: mouse x click
+        :param y: mouse y click
+        :return:
+        """
+        return self.x <= x <= (self.x + self.size[0]) and self.y <= y <= (self.y + self.size[1])
 
     def scope_check(self) -> bool:
         """
@@ -126,37 +132,10 @@ class Blocks:
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
 
-    def update_litter(self, litter):
-        match litter:
-            case 8:
-                self.text.pop_litter()
-            case _:
-                self.text.add_litter(chr(litter))
-
-    def create_cnn_line(self, connector_id: int, pos) -> None:
-        match connector_id:
-            case 1:
-                x = self.x + self.size[0] // 2
-                y = self.y + self.size[1]
-            case 2:
-                x = self.x + self.size[0] // 2
-                y = self.y
-            case 3:
-                x = self.x + self.size[0]
-                y = self.y + self.size[1] // 2
-            case _:
-                x = self.x
-                y = self.y + self.size[1] // 2
-
-        self.used_sides[connector_id] = ConnectLines(0, (x, y), pos)
-
-    def set_cnn_line_epos(self, connector_id, pos):
-        self.used_sides[connector_id].update_cords(0, *pos)
-
     def link_cnn_line(self, iex, line_obj):
         self.used_sides[iex] = line_obj
 
-    def set_win(self):
+    def put_dependencies_window(self):
         ConnectorRings.set_win(self.window)
         ConnectLines.set_win(self.window)
         Text.set_win(self.window)
@@ -232,27 +211,6 @@ class Blocks:
         return None
 
     @staticmethod
-    def connect_ring_capture(pos) -> (tuple | None):
-        """
-        Check all blocks for capturing
-        :param pos: (click.x, click.y)
-        :return: block id if find None else
-        """
-        x, y = pos
-        if ConnectorRings.active_ring is not None:
-            return ConnectorRings.active_ring.capture_check(x, y)
-        return None
-
-    @staticmethod
-    def set_available_zone(available) -> None:
-        """
-        Set an available zone for blocks (canvas cords)
-        :param available:  tuple[4]
-        :return: None
-        """
-        Blocks.available_zone = available
-
-    @staticmethod
     def generate_block(user_cords, win, win_size, block_id) -> None:
         """
         Adds a new block to the canvas
@@ -274,6 +232,7 @@ class Blocks:
         for block in Blocks.added_blocks:
             block.draw()
 
+    '''   
     @staticmethod
     def disable_all_editing() -> None:
         """
@@ -282,7 +241,19 @@ class Blocks:
         """
         for block in Blocks.added_blocks:
             block.editing = False
+    '''
 
+    @staticmethod
+    def set_available_zone(available) -> None:
+        """
+        Set an available zone for blocks (canvas cords)
+        :param available:  tuple[4]
+        :return: None
+        """
+        Blocks.available_zone = available
+
+    '''
     @staticmethod
     def set_grid_step(step):
         Blocks.grid_step = step
+    '''

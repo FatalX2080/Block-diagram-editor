@@ -38,7 +38,7 @@ class ConnectorRings:
             self.hide()
         self.scope_check()
 
-    def switch_visible_rings(self) -> bool:
+    def switch_visible(self) -> bool:
         """
         Change visibility of connection rings on canvas
         """
@@ -65,7 +65,7 @@ class ConnectorRings:
         Check if mouse click by this block
         :param x: mouse x click
         :param y: mouse y click
-        :return:
+        :return: (block ref; ring num)
         """
         for i in range(4):
             rx, ry = self.cords[i]
@@ -74,6 +74,18 @@ class ConnectorRings:
         return None
 
     # ------------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def connect_ring_capture(pos) -> tuple:
+        """
+        Check all blocks for capturing
+        :param pos: (click.x, click.y)
+        :return: (**block ref**; **ring num**) if find None else
+        """
+        x, y = pos
+        if ConnectorRings.active_ring is not None:
+            return ConnectorRings.active_ring.capture_check(x, y)
+        return None, None
 
     @staticmethod
     def set_win(win):

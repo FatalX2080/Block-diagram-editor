@@ -1,4 +1,5 @@
 import styleSheet as Style
+from time import time
 
 
 class Text:
@@ -39,10 +40,11 @@ class Text:
         self.x += (l_width - self.get_shape()[0]) / 2
 
     def pop_litter(self) -> None:
-        self.string.pop()
-        l_width = self.get_shape()[0]
-        self.rendering()
-        self.x += (l_width - self.get_shape()[0]) / 2
+        if self.string:
+            self.string.pop()
+            l_width = self.get_shape()[0]
+            self.rendering()
+            self.x += (l_width - self.get_shape()[0]) / 2
 
     def rendering(self) -> None:
         self.render = Style.FONT.render("".join(self.string), True, Style.BLACK)
@@ -51,6 +53,13 @@ class Text:
         return self.render.get_width(), self.render.get_height()
 
     # ------------------------------------------------------------------------------------------------------
+    @staticmethod
+    def update_litter(block, litter):
+        match litter:
+            case 8:
+                block.text.pop_litter()
+            case _:
+                block.text.add_litter(chr(litter))
 
     @staticmethod
     def set_win(win):
@@ -64,3 +73,7 @@ class Text:
             case 2:
                 return list(""), list("да"), list("нет")
         return list(""),
+
+    @staticmethod
+    def checking_relevance(block):
+        return block if block and (time() - block.last_click_time) else None

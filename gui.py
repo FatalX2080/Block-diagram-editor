@@ -6,6 +6,10 @@ import styleSheet as Style
 import pygame
 import numpy as np
 
+from blocks_parts.connect_lines import ConnectLines as Cl
+from blocks_parts.connector_rings import ConnectorRings as Cr
+from blocks_parts.text import Text as Tx
+
 
 class TabPosition:
     """
@@ -117,8 +121,11 @@ class Gui:
         self.win_size = win_size
 
         self.canvas_capture = False
-        self.captured_block = None
-        self.last_captured_block = None
+        self.active_block = None
+        self.last_block = None
+        self.text_block = None
+        self.active_connector = (None, None)
+        self.last_connector = (None, None)
         self.line_active = False
         self.last_mouse_pos = (0, 0)
         self.last_click_time = time()
@@ -128,7 +135,7 @@ class Gui:
         self.canvas = Canvas(self.tab_sizes.canvas, self.win, self.tab_sizes)
         self.block_tab = BlocksTab(self.tab_sizes.blocks)
         Blocks.set_available_zone(self.canvas.canvas_cords)
-        Blocks.set_grid_step(self.canvas.grid_step)
+        # Blocks.set_grid_step(self.canvas.grid_step)
 
         self.win.fill((255, 255, 255))
         self.__initial_gui_rendering()
@@ -196,28 +203,30 @@ class Gui:
                     self.__event_keydown(event)
 
     def __event_mousedown(self, event) -> None:
-        if event.button == 1:
-            captured_block = Blocks.blocks_capture(event.pos)
-            self.captured_connector = Blocks.connect_ring_capture(event.pos)
+        if event.button == pygame.BUTTON_LEFT:
+            self.active_block = Blocks.blocks_capture(event.pos)
+            self.text_block = Tx.checking_relevance(self.last_block)
+            self.active_connector = Cr.connect_ring_capture(event.pos)  # block; id
             self.last_mouse_pos = event.pos
 
-            if time() - self.last_click_time > 1:
-                # reset last click
-                self.last_captured_block = None
+            if self.active_block and (self.active_block == self.last_block):
+                # activation of text editing mode
+                self.text_block = self.active_block
+                self.active_block.edit_mode = True
 
-            if captured_block is not None and captured_block == self.last_captured_block:
-                # activation of editing mode
-                captured_block.edit_mode = True
-
-            elif self.captured_connector is not None:
+            elif self.active_connector[0]:
                 # connector pressing test
-                self.line_active = self.captured_connector[1]
-                self.captured_connector[0].create_cnn_line(self.line_active, event.pos)
-
+                self.last_connector = self.active_connector
+                self.last_block.connector_rings.switch_visible()
+                Cl.create_cnn_line(*self.active_connector, event.pos)
 
             elif self.canvas.capture_check(event.pos):
                 # canvas click test
-                self.canvas_capture = True
+                if self.last_connector[0]:
+                    self.last_connector[0].used_sides[self.last_connector[1]] = 0
+                    self.last_connector = (None, None)
+                else:
+                    self.canvas_capture = True
 
             elif self.block_tab.click_check(event.pos):
                 # checking clicks on a block bar
@@ -225,19 +234,18 @@ class Gui:
                 Blocks.generate_block(new_cords, self.win, self.win_size, self.block_tab.spawn_queue)
                 self.block_tab.spawn_queue = None
 
-            self.captured_block = captured_block
-        elif event.button == 3:
-            self.captured_block = Blocks.blocks_capture(event.pos)
-            if self.captured_block:
-                self.captured_block.connector_rings.switch_visible_rings()
+        elif event.button == pygame.BUTTON_RIGHT:
+            self.active_block = Blocks.blocks_capture(event.pos)
+            if self.active_block:
+                self.active_block.connector_rings.switch_visible()
 
     def __event_mousemove(self, event) -> None:
         dx, dy = [self.last_mouse_pos[_] - event.pos[_] for _ in (0, 1)]
 
-        if self.line_active:
-            self.captured_connector[0].set_cnn_line_epos(self.line_active, (dx, dy))
-        elif self.captured_block is not None:
-            self.captured_block.update_cords(dx, dy)
+        if self.last_connector[0]:
+            Cl.set_cnn_line_epos(*self.last_connector, (dx, dy))
+        elif self.active_block is not None:
+            self.active_block.update_cords(dx, dy)
         elif self.canvas_capture:
             self.canvas.update_cord(dx, dy)
             Blocks.update_all_cords(dx, dy)
@@ -245,11 +253,11 @@ class Gui:
 
     def __event_mouseup(self, event) -> None:
         self.canvas_capture = False
-        self.last_captured_block = self.captured_block
-        self.captured_block = None
+        self.last_block = self.active_block
+        self.active_block = None
         self.last_mouse_pos = event.pos
         self.last_click_time = time()
 
     def __event_keydown(self, event) -> None:
-        if self.last_captured_block is not None and self.last_captured_block.edit_mode:
-            self.last_captured_block.update_litter(event.key)
+        if self.last_block is not None and self.last_block.edit_mode:
+            Tx.update_litter(self.last_block, event.key)
