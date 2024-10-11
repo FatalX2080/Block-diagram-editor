@@ -71,7 +71,7 @@ class ConnectorRings:
             rx, ry = self.cords[i]
             if abs(x - rx) <= self.radius * 1.5 and abs(y - ry) <= self.radius * 1.5:
                 return self.block, i + 1
-        return None
+        return None, None
 
     # ------------------------------------------------------------------------------------------------------
 

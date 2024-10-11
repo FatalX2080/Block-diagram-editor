@@ -209,7 +209,10 @@ class Gui:
             self.active_connector = Cr.connect_ring_capture(event.pos)  # block; id
             self.last_mouse_pos = event.pos
 
-            if self.active_block and (self.active_block == self.last_block):
+            if self.active_block and self.last_connector[0]:
+                Cl.connect(self.active_block, self.last_connector, event.pos)
+
+            elif self.active_block and (self.active_block == self.last_block):
                 # activation of text editing mode
                 self.text_block = self.active_block
                 self.active_block.edit_mode = True
@@ -223,7 +226,7 @@ class Gui:
             elif self.canvas.capture_check(event.pos):
                 # canvas click test
                 if self.last_connector[0]:
-                    self.last_connector[0].used_sides[self.last_connector[1]] = 0
+                    self.last_connector[0].cn_lines[self.last_connector[1]] = 0
                     self.last_connector = (None, None)
                 else:
                     self.canvas_capture = True

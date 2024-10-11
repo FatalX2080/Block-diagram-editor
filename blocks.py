@@ -26,7 +26,8 @@ class Blocks:
 
         self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
 
-        self.used_sides = [0, 0, 0, 0]
+        # 1 is out | -1 is input
+        self.cn_lines = [0, 0, 0, 0]
 
         self.skale = 1
         self.x, self.y = x, y
@@ -75,7 +76,7 @@ class Blocks:
         self.text.draw()
         for text in self.add_text:
             text.draw()
-        for line in self.used_sides:
+        for line in self.cn_lines:
             if line:
                 line.draw()
 
@@ -133,12 +134,28 @@ class Blocks:
             (self.y + self.size[1]) <= Blocks.available_zone[3]
 
     def link_cnn_line(self, iex, line_obj):
-        self.used_sides[iex] = line_obj
+        self.cn_lines[iex] = line_obj
 
     def put_dependencies_window(self):
         ConnectorRings.set_win(self.window)
         ConnectLines.set_win(self.window)
         Text.set_win(self.window)
+
+    def get_side(self, x, y):
+        """
+        -------------
+        |11111111111|
+        |4         2|
+        |33333333333|
+        -------------
+        """
+        if self.y <= y <= self.y + self.size[1] * 0.3:
+            return 1, [self.x + self.size[0] // 2, self.y]
+        elif self.y + self.size[1] * 0.7 <= y <= self.y + self.size[1]:
+            return 3, [self.x + self.size[0] // 2, self.y + self.size[1]]
+        elif self.x <= x <= self.x + self.size[0] * 0.4:
+            return 4, [self.x, self.y + self.size[1] // 2]
+        return 2, [self.x + self.size[0], self.y + self.size[1] // 2]
 
     # ------------------------------------------------------------------------------------------------------
 
@@ -251,6 +268,8 @@ class Blocks:
         :return: None
         """
         Blocks.available_zone = available
+        ConnectLines.available_zone = (available[0] * 1.05, available[1] * 1.05,
+                                       available[2] * 0.98, available[3] * 0.98)
 
     '''
     @staticmethod
