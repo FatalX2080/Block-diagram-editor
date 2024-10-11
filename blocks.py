@@ -1,180 +1,14 @@
 from pygame import draw
 import styleSheet as Style
 
-
-class ConnectorRings:
-    win = None
-    active_ring = None  # visible rings objects
-    rings = set()  # all rings objects
-    available_zone = None
-
-    def __init__(self, r, zone, block):
-        self.radius = r
-        self.cords = None
-
-        self.block = block
-
-        self.visible = [0, 0, 0, 0]
-        self.active = False
-
-        ConnectorRings.rings.add(self)
-        ConnectorRings.available_zone = (zone[0] + self.radius, zone[1] + self.radius,
-                                         zone[2] - self.radius, zone[3] - self.radius)
-
-    def draw(self) -> None:
-        if self.active:
-            for vs, pos in zip(self.visible, self.cords):
-                if not vs:
-                    continue
-                draw.circle(ConnectorRings.win, Style.BLUE, pos, self.radius, 2)
-
-    def hide(self) -> None:
-        self.active = False
-        self.visible = [0, 0, 0, 0]
-
-    def set_cords(self, cords, visible) -> None:
-        self.cords = cords
-        if not visible:
-            self.hide()
-        self.scope_check()
-
-    def switch_visible_rings(self) -> bool:
-        """
-        Change visibility of connection rings on canvas
-        """
-
-        self.active = not self.active
-        ConnectorRings.active_ring = None
-        if self.active:
-            self.scope_check()
-            ConnectorRings.active_ring = self
-
-        return self.active
-
-    def scope_check(self) -> None:
-        """
-        Checking of available zone intersection
-        """
-        for i in range(4):
-            x, y = self.cords[i]
-            self.visible[i] = (ConnectorRings.available_zone[0] <= x <= ConnectorRings.available_zone[2] and
-                               ConnectorRings.available_zone[1] <= y <= ConnectorRings.available_zone[3])
-
-    def capture_check(self, x, y) -> tuple | None:
-        """
-        Check if mouse click by this block
-        :param x: mouse x click
-        :param y: mouse y click
-        :return:
-        """
-        for i in range(4):
-            rx, ry = self.cords[i]
-            if abs(x - rx) <= self.radius * 1.5 and abs(y - ry) <= self.radius * 1.5:
-                return self.block, i + 1
-        return None
-
-    # ------------------------------------------------------------------------------------------------------
-
-    @staticmethod
-    def set_win(win):
-        ConnectorRings.win = win
-
-
-class ConnectLine:
-    win = None
-
-    def __init__(self, io, spos, epos):
-        self.io = io
-        self.start_pos = list(spos)
-        self.end_pos = list(epos)
-
-    def draw(self) -> None:
-        draw.line(ConnectLine.win, Style.BLACK, self.start_pos, self.end_pos)
-
-    def update_cords(self, side, dx, dy) -> None:
-        match side:
-            case 1:
-                # end
-                self.start_pos[0] -= dx
-                self.start_pos[1] -= dy
-
-            case 0:
-                # start
-                self.end_pos[0] -= dx
-                self.end_pos[1] -= dy
-
-
-class Text:
-    win = None
-
-    def __init__(self, text, pos, block_size):
-        self.string = text
-        self.render = None
-        self.rendering()
-
-        shape = self.get_shape()
-        self.block_size = block_size
-        self.x = pos[0] + (self.block_size[0] - shape[0]) / 2
-        self.y = pos[1] + (self.block_size[1] - shape[1]) / 2
-
-        self.visible = True
-
-    def draw(self) -> None:
-        """
-        Display block text on canvas
-        """
-        if self.visible:
-            Text.win.blit(self.render, (self.x, self.y))
-
-    def update_cords(self, dx, dy, visible) -> None:
-        """
-        Change text position on canvas
-        """
-        self.x -= dx
-        self.y -= dy
-        self.visible = visible
-
-    def add_litter(self, litter) -> None:
-
-        self.string += [litter]
-        l_width = self.get_shape()[0]
-        self.rendering()
-        self.x += (l_width - self.get_shape()[0]) / 2
-
-    def pop_litter(self) -> None:
-        self.string.pop()
-        l_width = self.get_shape()[0]
-        self.rendering()
-        self.x += (l_width - self.get_shape()[0]) / 2
-
-    def rendering(self) -> None:
-        self.render = Style.FONT.render("".join(self.string), True, Style.BLACK)
-
-    def get_shape(self) -> tuple:
-        return self.render.get_width(), self.render.get_height()
-
-    # ------------------------------------------------------------------------------------------------------
-
-    @staticmethod
-    def set_win(win):
-        Text.win = win
-
-    @staticmethod
-    def get_basic_text(block_num) -> tuple:
-        match block_num:
-            case 1:
-                return list("Начало"),
-            case 2:
-                return list(""), list("да"), list("нет")
-        return list(""),
+from blocks_parts.connector_rings import ConnectorRings
+from blocks_parts.text import Text
+from blocks_parts.connect_lines import ConnectLines
 
 
 class Blocks:
     added_blocks = set()
-    size_rings = set()
-
     grid_step = 1
-
     added_blocks_num = 0
     available_zone = None
 
@@ -184,11 +18,10 @@ class Blocks:
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
+        self.set_win()
 
-        ConnectorRings.set_win(self.window)
         self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
 
-        ConnectLine.win = self.window
         self.used_sides = [0, 0, 0, 0]
 
         self.skale = 1
@@ -198,7 +31,6 @@ class Blocks:
         self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
         self.visible = True
 
-        Text.set_win(self.window)
         text = Text.get_basic_text(self.block_type)
         self.edit_mode = False
         self.text = Text(text[0], (self.x, self.y), self.size)
@@ -240,7 +72,6 @@ class Blocks:
         for line in self.used_sides:
             if line:
                 line.draw()
-
 
     def update_cords(self, dx, dy) -> None:
         """
@@ -317,13 +148,18 @@ class Blocks:
                 x = self.x
                 y = self.y + self.size[1] // 2
 
-        self.used_sides[connector_id] = ConnectLine(0, (x, y), pos)
+        self.used_sides[connector_id] = ConnectLines(0, (x, y), pos)
 
     def set_cnn_line_epos(self, connector_id, pos):
         self.used_sides[connector_id].update_cords(0, *pos)
 
     def link_cnn_line(self, iex, line_obj):
         self.used_sides[iex] = line_obj
+
+    def set_win(self):
+        ConnectorRings.set_win(self.window)
+        ConnectLines.set_win(self.window)
+        Text.set_win(self.window)
 
     # ------------------------------------------------------------------------------------------------------
 

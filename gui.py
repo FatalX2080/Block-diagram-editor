@@ -202,17 +202,25 @@ class Gui:
             self.last_mouse_pos = event.pos
 
             if time() - self.last_click_time > 1:
+                # reset last click
                 self.last_captured_block = None
 
             if captured_block is not None and captured_block == self.last_captured_block:
+                # activation of editing mode
                 captured_block.edit_mode = True
 
             elif self.captured_connector is not None:
+                # connector pressing test
                 self.line_active = self.captured_connector[1]
                 self.captured_connector[0].create_cnn_line(self.line_active, event.pos)
+
+
             elif self.canvas.capture_check(event.pos):
+                # canvas click test
                 self.canvas_capture = True
+
             elif self.block_tab.click_check(event.pos):
+                # checking clicks on a block bar
                 new_cords = (self.win_size[0] * 0.18, self.win_size[1] * 0.08)
                 Blocks.generate_block(new_cords, self.win, self.win_size, self.block_tab.spawn_queue)
                 self.block_tab.spawn_queue = None
