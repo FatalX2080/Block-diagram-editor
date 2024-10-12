@@ -6,9 +6,9 @@ import styleSheet as Style
 import pygame
 import numpy as np
 
-from blocks_parts.connect_lines import ConnectLines as Cl
+from blocks_parts.connect_lines import Lines as Cl
 from blocks_parts.connector_rings import ConnectorRings as Cr
-from blocks_parts.text import Text as Tx
+from blocks_parts.text import Texts as Tx
 
 
 class TabPosition:
@@ -221,15 +221,16 @@ class Gui:
 
             elif self.active_connector[0]:
                 # connector pressing test
+
+                # TODO register disabling previous connectors
                 self.last_connector = self.active_connector
-                self.last_block.connector_rings.switch_visible()
+                self.last_block.conn_rings.switch_visible()
                 Cl.create_cnn_line(*self.active_connector, event.pos)
 
             elif self.canvas.capture_check(event.pos):
                 # canvas click test
                 if self.last_connector[0]:
-                    self.last_connector[0].cn_lines[self.last_connector[1]] = 0
-                    self.last_connector[0].cn_lines_dir[self.last_connector[1]] = 0
+                    self.last_connector[0].lines.del_line(self.last_connector[1])
                     self.last_connector = (None, None)
                 else:
                     self.canvas_capture = True
@@ -243,7 +244,7 @@ class Gui:
         elif event.button == pygame.BUTTON_RIGHT:
             self.active_block = Blocks.blocks_capture(event.pos)
             if self.active_block:
-                self.active_block.connector_rings.switch_visible()
+                self.active_block.conn_rings.switch_visible()
 
     def __event_mousemove(self, event) -> None:
         dx, dy = [self.last_mouse_pos[_] - event.pos[_] for _ in (0, 1)]

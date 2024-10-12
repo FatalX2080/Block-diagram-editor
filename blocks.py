@@ -1,20 +1,17 @@
-from os import lseek
-
 from pygame import draw
 from pygame.key import set_repeat
 
 import styleSheet as Style
 
 from blocks_parts.connector_rings import ConnectorRings
-from blocks_parts.text import Text
-from blocks_parts.connect_lines import ConnectLines
+from blocks_parts.text import Texts
+from blocks_parts.connect_lines import Lines
 
 from time import time
 
 
 class Blocks:
     added_blocks = set()
-    # grid_step = 1
     added_blocks_num = 0
     available_zone = None
 
@@ -26,24 +23,18 @@ class Blocks:
         self.block_type = block_type
         self.put_dependencies_window()
 
-        self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
-
-        self.cn_lines = [0, 0, 0, 0]
-        self.cn_lines_dir = [0, 0, 0, 0]  # 1 is out | -1 is input
-
         self.skale = 1
         self.x, self.y = x, y
         self.size = (self.win_size[0] // 10, self.win_size[1] // 15)
         self.cords, self.cords2 = (0, 0, 0, 0), (0, 0, 0, 0)
-        self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
         self.visible = True
 
-        self.last_click_time = time()
+        self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
+        self.conn_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
+        self.texts = Texts(block_type, (self.x, self.y), self.size)
+        self.lines = Lines()
 
-        text = Text.get_basic_text(self.block_type)
-        self.edit_mode = False
-        self.text = Text(text[0], (self.x, self.y), self.size)
-        self.add_text = ()
+        self.last_click_time = time()
 
         Blocks.added_blocks.add(self)
         Blocks.added_blocks_num += 1
@@ -51,6 +42,16 @@ class Blocks:
     # ------------------------------------------------------------------------------------------------------
 
     def draw(self) -> None:
+        """
+        Draw bloock on canvas with dependence
+        :return: None
+        """
+        self.draw_box()
+        self.conn_rings.draw()
+        self.lines.draw()
+        self.texts.draw()
+
+    def draw_box(self) -> None:
         """
         Draw bloock on canvas
         :return: None
@@ -74,16 +75,6 @@ class Blocks:
                     draw.polygon(self.window, Style.WHITE, self.cords)
                     draw.lines(self.window, Style.BLACK, True, self.cords, 1)
 
-        self.connector_rings.draw()
-        self.text.draw()
-        for text in self.add_text:
-            text.draw()
-
-
-        for line_iex in range(4):
-            if self.cn_lines_dir[line_iex]:
-                self.cn_lines[line_iex].draw()
-
     def update_cords(self, dx, dy) -> None:
         """
         Update cords of this block
@@ -93,15 +84,11 @@ class Blocks:
         """
         self.x -= dx
         self.y -= dy
-
-        for line_iex in range(4):
-            if self.cn_lines[line_iex]:
-                self.cn_lines[line_iex].update_cords(self.cn_lines_dir[line_iex], dx, dy)
-
         self.visible = self.scope_check()
+        self.lines.update_cords(dx, dy)
+        self.texts.update_cords(dx, dy, self.visible)
 
-        self.text.update_cords(dx, dy, self.visible)
-        self.connector_rings.set_cords(
+        self.conn_rings.set_cords(
             ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
              (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
              (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
@@ -122,8 +109,6 @@ class Blocks:
         self.cords = t_cords[0]
         self.cords2 = t_cords[1]
 
-
-
     def capture_check(self, x, y) -> bool:
         """
         Check if mouse click by this block
@@ -143,13 +128,10 @@ class Blocks:
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
 
-    def link_cnn_line(self, iex, line_obj):
-        self.cn_lines[iex] = line_obj
-
     def put_dependencies_window(self):
         ConnectorRings.set_win(self.window)
-        ConnectLines.set_win(self.window)
-        Text.set_win(self.window)
+        Lines.set_win(self.window)
+        Texts.set_win(self.window)
 
     def get_cn_side(self, x, y):
         """
@@ -259,17 +241,6 @@ class Blocks:
         for block in Blocks.added_blocks:
             block.draw()
 
-    '''   
-    @staticmethod
-    def disable_all_editing() -> None:
-        """
-        Disable all text editing
-        :return: None
-        """
-        for block in Blocks.added_blocks:
-            block.editing = False
-    '''
-
     @staticmethod
     def set_available_zone(available) -> None:
         """
@@ -278,11 +249,5 @@ class Blocks:
         :return: None
         """
         Blocks.available_zone = available
-        ConnectLines.available_zone = (available[0] * 1.05, available[1] * 1.05,
-                                       available[2] * 0.98, available[3] * 0.98)
-
-    '''
-    @staticmethod
-    def set_grid_step(step):
-        Blocks.grid_step = step
-    '''
+        Lines.set_available_zone((available[0] * 1.05, available[1] * 1.05,
+                                  available[2] * 0.98, available[3] * 0.98))
