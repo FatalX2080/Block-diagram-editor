@@ -240,4 +240,4 @@ class Blocks:
         Rings.set_available_zone((available[0] + radius, available[1] + radius,
                                   available[2] - radius, available[3] - radius))
         Lines.set_available_zone((available[0] * 1.05, available[1] * 1.05,
-                                  available[2] * 0.98, available[3] * 0.98))
+                                  available[2] * 0.97, available[3] * 0.97))

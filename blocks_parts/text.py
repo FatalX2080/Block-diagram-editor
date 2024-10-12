@@ -65,17 +65,17 @@ class Texts:
 
         # TODO Do normal base text processing
         basic = Texts.get_basic_text(self.block_type)
-        self.text_set = {Text(basic[0], (block_pos[0], block_pos[1]), self.block_size)}
+        self.text_list = [Text(basic[0], (block_pos[0], block_pos[1]), self.block_size)]
 
     def draw(self):
-        for text in self.text_set:
+        for text in self.text_list:
             text.draw()
 
     def update_cords(self, dx, dy, visible) -> None:
         """
         Change text position on canvas
         """
-        for text in self.text_set:
+        for text in self.text_list:
             text.update_cords(dx, dy, visible)
 
     @staticmethod
@@ -89,10 +89,10 @@ class Texts:
     @staticmethod
     def update_litter(block, litter):
         match litter:
-            case 8:
-                block.text.pop_litter()
+            case 8: 
+                block.texts.text_list[0].pop_litter()
             case _:
-                block.text.add_litter(chr(litter))
+                block.texts.text_list[0].add_litter(chr(litter))
 
     @staticmethod
     def get_basic_text(block_num) -> tuple:
