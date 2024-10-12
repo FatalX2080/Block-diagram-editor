@@ -1,13 +1,11 @@
+from time import time
+
 from pygame import draw
-from pygame.key import set_repeat
 
 import styleSheet as Style
-
-from blocks_parts.connector_rings import ConnectorRings
-from blocks_parts.text import Texts
 from blocks_parts.connect_lines import Lines
-
-from time import time
+from blocks_parts.connector_rings import ConnectorRings as Rings
+from blocks_parts.text import Texts
 
 
 class Blocks:
@@ -21,7 +19,6 @@ class Blocks:
         self.window = win
         self.win_size = win_size
         self.block_type = block_type
-        self.put_dependencies_window()
 
         self.skale = 1
         self.x, self.y = x, y
@@ -30,7 +27,7 @@ class Blocks:
         self.visible = True
 
         self.set_cords(self.get_cords(self.x, self.y, self.size, self.skale, self.block_type))
-        self.conn_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
+        self.conn_rings = Rings(self)
         self.texts = Texts(block_type, (self.x, self.y), self.size)
         self.lines = Lines()
 
@@ -87,14 +84,7 @@ class Blocks:
         self.visible = self.scope_check()
         self.lines.update_cords(dx, dy)
         self.texts.update_cords(dx, dy, self.visible)
-
-        self.conn_rings.set_cords(
-            ((self.x + self.size[0] // 2, self.y + self.size[1] + self.size[1] // 5),
-             (self.x + self.size[0] // 2, self.y - self.size[1] // 5),
-             (self.x + self.size[0] + self.size[1] // 5, self.y + self.size[1] // 2),
-             (self.x - self.size[1] // 5, self.y + self.size[1] // 2)),
-            self.visible
-        )
+        self.conn_rings.set_cords(self.x, self.y, self.size, self.visible)
 
         new_cords = self.get_cords(self.x, self.y, self.size, self.skale, self.block_type)
         self.set_cords(new_cords)
@@ -128,12 +118,7 @@ class Blocks:
             Blocks.available_zone[1] <= self.y and \
             (self.y + self.size[1]) <= Blocks.available_zone[3]
 
-    def put_dependencies_window(self):
-        ConnectorRings.set_win(self.window)
-        Lines.set_win(self.window)
-        Texts.set_win(self.window)
-
-    def get_cn_side(self, x, y):
+    def get_cn_side(self, x, y) -> tuple:
         """
         -------------
         |11111111111|
@@ -242,12 +227,17 @@ class Blocks:
             block.draw()
 
     @staticmethod
-    def set_available_zone(available) -> None:
-        """
-        Set an available zone for blocks (canvas cords)
-        :param available:  tuple[4]
-        :return: None
-        """
+    def put_dependencies_window(window) -> None:
+        Rings.set_win(window)
+        Lines.set_win(window)
+        Texts.set_win(window)
+
+    @staticmethod
+    def set_available_zone(win_size, available) -> None:
         Blocks.available_zone = available
+        radius = win_size[1] // 150
+        Rings.radius = radius
+        Rings.set_available_zone((available[0] + radius, available[1] + radius,
+                                  available[2] - radius, available[3] - radius))
         Lines.set_available_zone((available[0] * 1.05, available[1] * 1.05,
                                   available[2] * 0.98, available[3] * 0.98))

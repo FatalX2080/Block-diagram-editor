@@ -1,5 +1,6 @@
-import styleSheet as Style
 from time import time
+
+import styleSheet as Style
 
 
 class Text:

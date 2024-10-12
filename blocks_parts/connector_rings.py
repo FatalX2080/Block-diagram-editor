@@ -1,5 +1,8 @@
-import styleSheet as Style
+from zoneinfo import available_timezones
+
 from pygame import draw
+
+import styleSheet as Style
 
 
 class ConnectorRings:
@@ -7,33 +10,33 @@ class ConnectorRings:
     active_ring = None  # visible rings objects
     rings = set()  # all rings objects
     available_zone = None
+    radius = None
 
-    def __init__(self, r, zone, block):
-        self.radius = r
+    def __init__(self, block):
         self.cords = None
-
-        self.block = block
-
         self.visible = [0, 0, 0, 0]
         self.active = False
 
+        self.block = block
+
         ConnectorRings.rings.add(self)
-        ConnectorRings.available_zone = (zone[0] + self.radius, zone[1] + self.radius,
-                                         zone[2] - self.radius, zone[3] - self.radius)
 
     def draw(self) -> None:
-        if self.active:
+        if self.active :
             for vs, pos in zip(self.visible, self.cords):
-                if not vs:
-                    continue
-                draw.circle(ConnectorRings.win, Style.BLUE, pos, self.radius, 2)
+                if vs:
+                    draw.circle(ConnectorRings.win, Style.BLUE, pos, ConnectorRings.radius, 2)
 
     def hide(self) -> None:
         self.active = False
         self.visible = [0, 0, 0, 0]
 
-    def set_cords(self, cords, visible) -> None:
-        self.cords = cords
+    def set_cords(self, x, y, size, visible) -> None:
+        offset = size[1] // 5
+        self.cords = ((x + size[0] // 2, y - offset),
+                      (x + size[0] + offset, y + size[1] // 2),
+                      (x + size[0] // 2, y + size[1] + offset),
+                      (x - offset, y + size[1] // 2))
         if not visible:
             self.hide()
         self.scope_check()
@@ -69,8 +72,8 @@ class ConnectorRings:
         """
         for i in range(4):
             rx, ry = self.cords[i]
-            if abs(x - rx) <= self.radius * 1.5 and abs(y - ry) <= self.radius * 1.5:
-                return self.block, i + 1
+            if abs(x - rx) <= ConnectorRings.radius * 1.5 and abs(y - ry) <= ConnectorRings.radius * 1.5:
+                return self.block, i
         return None, None
 
     # ------------------------------------------------------------------------------------------------------
@@ -88,5 +91,9 @@ class ConnectorRings:
         return None, None
 
     @staticmethod
-    def set_win(win):
+    def set_win(win) -> None:
         ConnectorRings.win = win
+
+    @staticmethod
+    def set_available_zone(available) -> None:
+        ConnectorRings.available_zone = available

@@ -1,11 +1,12 @@
-from blocks import Blocks
-from sys import exit
 from math import ceil
+from sys import exit
 from time import time
-import styleSheet as Style
-import pygame
-import numpy as np
 
+import numpy as np
+import pygame
+
+import styleSheet as Style
+from blocks import Blocks
 from blocks_parts.connect_lines import Lines as Cl
 from blocks_parts.connector_rings import ConnectorRings as Cr
 from blocks_parts.text import Texts as Tx
@@ -134,8 +135,9 @@ class Gui:
         self.tab_sizes = TabPosition(self.win_size)
         self.canvas = Canvas(self.tab_sizes.canvas, self.win, self.tab_sizes)
         self.block_tab = BlocksTab(self.tab_sizes.blocks)
-        Blocks.set_available_zone(self.canvas.canvas_cords)
-        # Blocks.set_grid_step(self.canvas.grid_step)
+
+        Blocks.put_dependencies_window(self.win)
+        Blocks.set_available_zone(win_size, self.canvas.canvas_cords)
 
         self.win.fill((255, 255, 255))
         self.__initial_gui_rendering()

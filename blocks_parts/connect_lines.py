@@ -1,8 +1,9 @@
-import styleSheet as Style
 from pygame import draw
 
+import styleSheet as Style
 
-def minmax(a, b, val):
+
+def minmax(a, b, val) -> (int | float):
     """
     a: left border
     b: right border
@@ -40,7 +41,7 @@ class ConnectLines:
 
         self.set_rendering_cords()
 
-    def set_rendering_cords(self):
+    def set_rendering_cords(self) -> None:
         self.rstart_pos = ConnectLines.scope_check(self.start_pos)
         self.rend_pos = ConnectLines.scope_check(self.end_pos)
 
@@ -55,36 +56,36 @@ class Lines:
         self.cn_lines = [0, 0, 0, 0]
         self.cn_lines_dir = [0, 0, 0, 0]  # 1 is out | -1 is input
 
-    def draw(self):
+    def draw(self) -> None:
         for line_iex in range(4):
             if self.cn_lines_dir[line_iex]:
                 self.cn_lines[line_iex].draw()
 
-    def update_cords(self, dx, dy):
+    def update_cords(self, dx, dy) -> None:
         for line_iex in range(4):
             if self.cn_lines[line_iex]:
                 self.cn_lines[line_iex].update_cords(self.cn_lines_dir[line_iex], dx, dy)
 
-    def create_line(self, iex, start, end):
+    def create_line(self, iex, start, end) -> None:
         self.cn_lines[iex] = ConnectLines(start, end)
         self.cn_lines_dir[iex] = 1
 
-    def del_line(self, iex):
+    def del_line(self, iex) -> None:
         self.cn_lines[iex] = 0
         self.cn_lines_dir[iex] = 0
 
     @staticmethod
     def create_cnn_line(block, connector_num, pos) -> None:
         match connector_num:
-            case 1:
+            case 0:
                 x = block.x + block.size[0] // 2
                 y = block.y + block.size[1]
-            case 2:
-                x = block.x + block.size[0] // 2
-                y = block.y
-            case 3:
+            case 1:
                 x = block.x + block.size[0]
                 y = block.y + block.size[1] // 2
+            case 2:
+                x = block.x + block.size[0] // 2
+                y = block.y + block.size[1]
             case _:
                 x = block.x
                 y = block.y + block.size[1] // 2
@@ -100,7 +101,7 @@ class Lines:
         block.lines.cn_lines[connector_num].update_cords(-1, *pos)
 
     @staticmethod
-    def connect(block, line, pos):
+    def connect(block, line, pos) -> None:
         last_block, line_num = line
         line_index, conn_pos = block.get_cn_side(*pos)
         last_block.lines.cn_lines[line_num].end_pos = conn_pos
@@ -110,7 +111,7 @@ class Lines:
         block.lines.cn_lines[line_index].update_cords(-1)
 
     @staticmethod
-    def set_win(win):
+    def set_win(win) -> None:
         ConnectLines.win = win
 
     @staticmethod
