@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03748a31-ff01-42e8-ad7e-f02454a1e0fe" name="Changes" comment="Second commit" />
+    <list default="true" id="03748a31-ff01-42e8-ad7e-f02454a1e0fe" name="Changes" comment="Temporary commit, fixing connection lines, garbage was cleared from functions">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blocks.py" beforeDir="false" afterPath="$PROJECT_DIR$/blocks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blocks_parts/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/blocks_parts/text.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,29 +24,30 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="autogen" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "FatalX2080"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;FatalX2080&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/FatalX2080/Block-diagram-editor.git",
-    "accountId": "ffcab653-7ac9-4854-8575-40c6edd4e6d0"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/FatalX2080/Block-diagram-editor.git&quot;,
+    &quot;accountId&quot;: &quot;ffcab653-7ac9-4854-8575-40c6edd4e6d0&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
   <component name="ProjectId" id="2mOpU7YiuL60I4mlzt1gAdwW45O" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -52,6 +57,9 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "Python.autogen.executor": "Run",
+    "Python.gui.executor": "Run",
     "Python.main.executor": "Run",
     "Python.test.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -63,12 +71,16 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "debugger.dataViews.python.type.renderers",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "ChangesTree.GroupingKeys": []
   }
 }]]></component>
   <component name="RunManager" selected="Python.main">
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="BlockSchemeEditor" />
+    <configuration name="gui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Block-diagram-editor" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -78,6 +90,30 @@
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/gui.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Block-diagram-editor" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="SDK_NAME" value="Python 3.11 (Block-diagram-editor)" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
@@ -91,7 +127,7 @@
       <method v="2" />
     </configuration>
     <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="BlockSchemeEditor" />
+      <module name="Block-diagram-editor" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -113,12 +149,16 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.gui" />
+      <item itemvalue="Python.main" />
+      <item itemvalue="Python.test" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.gui" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.main" />
         <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
@@ -143,6 +183,25 @@
       <workItem from="1727081735736" duration="3763000" />
       <workItem from="1727221906664" duration="1732000" />
       <workItem from="1727261187314" duration="16269000" />
+      <workItem from="1727296976657" duration="276000" />
+      <workItem from="1727297257621" duration="325000" />
+      <workItem from="1727334264502" duration="28999000" />
+      <workItem from="1727538760760" duration="57000" />
+      <workItem from="1727540312348" duration="7000" />
+      <workItem from="1727680556246" duration="1252000" />
+      <workItem from="1727695918686" duration="1441000" />
+      <workItem from="1727736037550" duration="6000" />
+      <workItem from="1727736064678" duration="39000" />
+      <workItem from="1727770333300" duration="115000" />
+      <workItem from="1727961506260" duration="4392000" />
+      <workItem from="1728053817203" duration="17000" />
+      <workItem from="1728161759983" duration="17924000" />
+      <workItem from="1728291663643" duration="5583000" />
+      <workItem from="1728330677656" duration="6000" />
+      <workItem from="1728371759313" duration="75000" />
+      <workItem from="1728471266781" duration="12000" />
+      <workItem from="1728655575567" duration="39000" />
+      <workItem from="1728668680172" duration="25988000" />
     </task>
     <task id="LOCAL-00001" summary="First commit">
       <option name="closed" value="true" />
@@ -160,13 +219,172 @@
       <option name="project" value="LOCAL" />
       <updated>1727295042616</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Add object class">
+      <option name="closed" value="true" />
+      <created>1727305130443</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1727305130444</updated>
+    </task>
+    <task id="LOCAL-00004" summary="change cord processing function in Blocks">
+      <option name="closed" value="true" />
+      <created>1727307215940</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1727307215940</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Add all blocks. Moved block class in out file. Also create SS.py file with color settings">
+      <option name="closed" value="true" />
+      <created>1727363047665</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1727363047665</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Intermediate backup">
+      <option name="closed" value="true" />
+      <created>1727467807528</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1727467807528</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Completed simple grid; block adding; block info. Also write funk description in blocks.py">
+      <option name="closed" value="true" />
+      <created>1727471070997</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1727471070997</updated>
+    </task>
+    <task id="LOCAL-00008" summary="temp commit for new branch">
+      <option name="closed" value="true" />
+      <created>1727472118013</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1727472118013</updated>
+    </task>
+    <task id="LOCAL-00009" summary="temp commit for new branch">
+      <option name="closed" value="true" />
+      <created>1727481939781</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1727481939781</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Lots of different edits">
+      <option name="closed" value="true" />
+      <created>1728163565271</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1728163565271</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Add connectors ring class and its methods">
+      <option name="closed" value="true" />
+      <created>1728169712398</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1728169712398</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Add Text class and connect line">
+      <option name="closed" value="true" />
+      <created>1728185590752</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1728185590752</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Complete main text edit mode">
+      <option name="closed" value="true" />
+      <created>1728213854430</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1728213854430</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Start creating connection lines">
+      <option name="closed" value="true" />
+      <created>1728298501790</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1728298501790</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Split blocks.py classes by different files">
+      <option name="closed" value="true" />
+      <created>1728672399405</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1728672399405</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Reworked the encapsulation, reset the line">
+      <option name="closed" value="true" />
+      <created>1728682598634</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1728682598634</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Line connects 2 blocks">
+      <option name="closed" value="true" />
+      <created>1728689202718</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1728689202718</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Lines are magnetized to control points of blocks">
+      <option name="closed" value="true" />
+      <created>1728692826184</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1728692826184</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Очистил класс блоков перенеся обработчики в классы *'s">
+      <option name="closed" value="true" />
+      <created>1728696099838</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1728696099838</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Temporary commit, fixing connection lines, garbage was cleared from functions">
+      <option name="closed" value="true" />
+      <created>1728698652625</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1728698652625</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="HEAD" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
@@ -192,10 +410,35 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First commit" />
     <MESSAGE value="Second commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Second commit" />
+    <MESSAGE value="Fix venv troubles" />
+    <MESSAGE value="Strange pygame minigame" />
+    <MESSAGE value="Add object class" />
+    <MESSAGE value="change cord processing function in Blocks" />
+    <MESSAGE value="Add all blocks. Moved block class in out file. Also create SS.py file with color settings" />
+    <MESSAGE value="Intermediate backup" />
+    <MESSAGE value="Completed simple grid; block adding; block info. Also write funk description in blocks.py" />
+    <MESSAGE value="temp commit for new branch" />
+    <MESSAGE value="Lots of different edits" />
+    <MESSAGE value="Add connectors ring class and its methods" />
+    <MESSAGE value="Add Text class and connect line" />
+    <MESSAGE value="Complete main text edit mode" />
+    <MESSAGE value="Start creating connection lines" />
+    <MESSAGE value="Split blocks.py classes by different files" />
+    <MESSAGE value="Reworked the encapsulation, reset the line" />
+    <MESSAGE value="Line connects 2 blocks" />
+    <MESSAGE value="Lines are magnetized to control points of blocks" />
+    <MESSAGE value="Очистил класс блоков перенеся обработчики в классы *'s" />
+    <MESSAGE value="Temporary commit, fixing connection lines, garbage was cleared from functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Temporary commit, fixing connection lines, garbage was cleared from functions" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/main_py$autogen.coverage" NAME="autogen Coverage Results" MODIFIED="1728166308052" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Block_diagram_editor$main.coverage" NAME="main Coverage Results" MODIFIED="1727481381665" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Block_diagram_editor$autogen.coverage" NAME="autogen Coverage Results" MODIFIED="1727482112374" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/main_py$test.coverage" NAME="test Coverage Results" MODIFIED="1728697829085" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/BlockSchemeEditor$test.coverage" NAME="test Coverage Results" MODIFIED="1727273923020" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/main_py$gui.coverage" NAME="gui Coverage Results" MODIFIED="1728697838176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/BlockSchemeEditor$main.coverage" NAME="main Coverage Results" MODIFIED="1727294282127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1728698831440" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
