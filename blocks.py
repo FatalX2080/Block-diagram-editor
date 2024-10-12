@@ -1,6 +1,8 @@
 from os import lseek
 
 from pygame import draw
+from pygame.key import set_repeat
+
 import styleSheet as Style
 
 from blocks_parts.connector_rings import ConnectorRings
@@ -26,8 +28,8 @@ class Blocks:
 
         self.connector_rings = ConnectorRings(win_size[1] // 150, Blocks.available_zone, self)
 
-        # 1 is out | -1 is input
         self.cn_lines = [0, 0, 0, 0]
+        self.cn_lines_dir = [0, 0, 0, 0]  # 1 is out | -1 is input
 
         self.skale = 1
         self.x, self.y = x, y
@@ -76,9 +78,11 @@ class Blocks:
         self.text.draw()
         for text in self.add_text:
             text.draw()
-        for line in self.cn_lines:
-            if line:
-                line.draw()
+
+
+        for line_iex in range(4):
+            if self.cn_lines_dir[line_iex]:
+                self.cn_lines[line_iex].draw()
 
     def update_cords(self, dx, dy) -> None:
         """
@@ -89,6 +93,10 @@ class Blocks:
         """
         self.x -= dx
         self.y -= dy
+
+        for line_iex in range(4):
+            if self.cn_lines[line_iex]:
+                self.cn_lines[line_iex].update_cords(self.cn_lines_dir[line_iex], dx, dy)
 
         self.visible = self.scope_check()
 
@@ -113,6 +121,8 @@ class Blocks:
 
         self.cords = t_cords[0]
         self.cords2 = t_cords[1]
+
+
 
     def capture_check(self, x, y) -> bool:
         """
@@ -141,7 +151,7 @@ class Blocks:
         ConnectLines.set_win(self.window)
         Text.set_win(self.window)
 
-    def get_side(self, x, y):
+    def get_cn_side(self, x, y):
         """
         -------------
         |11111111111|

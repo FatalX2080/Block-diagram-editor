@@ -35,7 +35,7 @@ class ConnectLines:
                 # end
                 self.start_pos[0] -= dx
                 self.start_pos[1] -= dy
-            case 0:
+            case -1:
                 # start
                 self.end_pos[0] -= dx
                 self.end_pos[1] -= dy
@@ -63,6 +63,7 @@ class ConnectLines:
                 y = block.y + block.size[1] // 2
 
         block.cn_lines[connector_id] = ConnectLines((x, y), pos)
+        block.cn_lines_dir[connector_id] = 1
 
     @staticmethod
     def scope_check(pos) -> list:
@@ -75,16 +76,16 @@ class ConnectLines:
 
     @staticmethod
     def set_cnn_line_epos(block, connector_id, pos) -> None:
-        block.cn_lines[connector_id].update_cords(0, *pos)
+        block.cn_lines[connector_id].update_cords(-1, *pos)
 
     @staticmethod
     def connect(block, line, pos):
         last_block, line_num = line
-        line_index, conn_pos = block.get_side(*pos)
-
+        line_index, conn_pos = block.get_cn_side(*pos)
         last_block.cn_lines[line_num].end_pos = conn_pos
-
         block.cn_lines[line_index] = last_block.cn_lines[line_num]
+        block.cn_lines_dir[line_index] = -1
+
 
     @staticmethod
     def set_win(win):
